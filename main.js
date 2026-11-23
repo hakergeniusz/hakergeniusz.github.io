@@ -77,18 +77,27 @@ function showToast(message) {
 /* ---------------- avatar poof easter egg ---------------- */
 const avatarZone = $('#avatarZone');
 const avatar = $('#avatar');
+let restoreAvatar = () => {};
+let onAvatarPoof = () => {};
+let onAvatarRestore = () => {};
 
 if (avatarZone && avatar) {
   let avatarBusy = false;
+
+  restoreAvatar = () => {
+    if (!avatar.classList.contains('is-gone')) return;
+    avatar.classList.remove('is-gone');
+    avatar.classList.add('is-returning');
+    avatarBusy = true;
+    setTimeout(() => { avatar.classList.remove('is-returning'); avatarBusy = false; }, 400);
+  };
 
   function toggleAvatar() {
     if (avatarBusy) return;
 
     if (avatar.classList.contains('is-gone')) {
-      avatar.classList.remove('is-gone');
-      avatar.classList.add('is-returning');
-      avatarBusy = true;
-      setTimeout(() => { avatar.classList.remove('is-returning'); avatarBusy = false; }, 400);
+      onAvatarRestore();
+      restoreAvatar();
       return;
     }
 
@@ -112,6 +121,7 @@ if (avatarZone && avatar) {
       avatar.classList.remove('is-bursting');
       avatar.classList.add('is-gone');
       avatarBusy = false;
+      onAvatarPoof();
       showToast('Poof! Click again to bring it back');
     }, 450);
   }
@@ -341,6 +351,7 @@ loadLocStats();
 let pacActive = false;
 let pacFrame = null;
 let pacListenersReady = false;
+let pacAutoTimer = null;
 const PAC_SIZE = 64;
 const PAC_SPEED = 4;
 let pacLoopToken = 0;
@@ -350,25 +361,62 @@ let pacDir = { x: 0, y: 0 };
 let pacSwipeStart = null;
 let pacOldTouchAction = '';
 let pacEaten = [];
+let pacTotal = 1;
+let pacLastEat = 0;
+
+const PAC_SKIP_TAGS = new Set(['HTML', 'BODY', 'HEAD', 'SCRIPT', 'STYLE', 'NOSCRIPT']);
+
+function isEdible(el) {
+  if (!el || el === document.body || el === document.documentElement) return false;
+  if (PAC_SKIP_TAGS.has(el.tagName)) return false;
+  if (el.closest('.pacman, .pac-hud, #avatarZone, .eat-fx, #toast')) return false;
+  if (el.classList.contains('eaten') || el.classList.contains('restoring')) return false;
+  const r = el.getBoundingClientRect();
+  if (!r.width || !r.height) return false;
+  return (el.textContent && el.textContent.trim().length > 0) || /^(IMG|SVG|CANVAS|VIDEO)$/.test(el.tagName);
+}
+
+function schedulePacman() {
+  clearTimeout(pacAutoTimer);
+  pacAutoTimer = setTimeout(() => {
+    pacAutoTimer = null;
+    if (!pacActive) spawnPacman();
+  }, 67000);
+}
+
+onAvatarPoof = () => schedulePacman();
+onAvatarRestore = () => { clearTimeout(pacAutoTimer); pacAutoTimer = null; };
 
 function stopPacman() {
   if (!pacActive) return;
   pacActive = false;
   pacLoopToken += 1;
   clearInterval(pacFrame);
+  clearTimeout(pacAutoTimer);
+  pacAutoTimer = null;
   $('.pacman')?.remove();
   $('.pac-hud')?.remove();
-  pacEaten.forEach((el) => el.classList.remove('eaten'));
+
+  const restored = pacEaten.slice();
+  restored.forEach((el) => {
+    el.classList.remove('eaten');
+    el.classList.add('restoring');
+  });
+  setTimeout(() => restored.forEach((el) => el.classList.remove('restoring')), 520);
+
   pacEaten = [];
   pacDir = { x: 0, y: 0 };
   pacSwipeStart = null;
   document.body.style.touchAction = pacOldTouchAction;
+  restoreAvatar();
   showToast('Pac-Man restored everything');
 }
 
 function spawnPacman() {
   if (pacActive) return;
   pacActive = true;
+  clearTimeout(pacAutoTimer);
+  pacAutoTimer = null;
   const myToken = ++pacLoopToken;
 
   const pacman = document.createElement('div');
@@ -378,6 +426,7 @@ function spawnPacman() {
   const pacBody = pacman.querySelector('.pacman-body');
   const hud = document.createElement('div');
   hud.className = 'pac-hud';
+  hud.innerHTML = '<div class="pac-hud-line">PAC-MAN - <span class="pac-score">0</span> EATEN - ESC RESTORE</div><div class="pac-progress"><div class="pac-progress-fill"></div></div>';
   document.body.append(pacman, hud);
   pacOldTouchAction = document.body.style.touchAction;
   document.body.style.touchAction = 'none';
@@ -393,12 +442,30 @@ function spawnPacman() {
   pacman.style.transform = `translate(${pacPosition.x}px, ${pacPosition.y}px)`;
   pacBody.style.transform = `rotate(${pacAngle}deg)`;
 
+  pacTotal = Math.max(1, Array.from(document.body.querySelectorAll('*')).filter(isEdible).length);
   let score = 0;
-  const updateHud = () => { hud.textContent = `PAC-MAN - ${score} EATEN - WASD / ARROWS / SWIPE - ESC RESTORE`; };
+  const scoreEl = hud.querySelector('.pac-score');
+  const progressFill = hud.querySelector('.pac-progress-fill');
+  const updateHud = () => {
+    scoreEl.textContent = score;
+    progressFill.style.width = `${Math.min(100, (score / pacTotal) * 100)}%`;
+  };
   updateHud();
 
-  const targets = Array.from(document.querySelectorAll('h1, h2, h3, p, li, a, button, span, img, .stat, .repo, .badge, .panel'))
-    .filter((el) => el.getClientRects().length > 0 && !el.closest('.pacman, .pac-hud, #avatarZone'));
+  const eat = (el) => {
+    const r = el.getBoundingClientRect();
+    el.classList.add('eaten');
+    pacEaten.push(el);
+    score += 1;
+    updateHud();
+    const fx = document.createElement('span');
+    fx.className = 'eat-fx';
+    fx.textContent = '+1';
+    fx.style.left = `${r.left + r.width / 2}px`;
+    fx.style.top = `${r.top + r.height / 2}px`;
+    document.body.append(fx);
+    setTimeout(() => fx.remove(), 620);
+  };
 
   const step = () => {
     if (!pacActive || myToken !== pacLoopToken) return;
@@ -419,23 +486,26 @@ function spawnPacman() {
     pacPosition.y = Math.max(0, Math.min(window.innerHeight - PAC_SIZE, pacPosition.y + dy));
     pacman.style.transform = `translate(${pacPosition.x}px, ${pacPosition.y}px)`;
 
-    const mouth = {
-      left: pacPosition.x,
-      top: pacPosition.y,
-      right: pacPosition.x + PAC_SIZE,
-      bottom: pacPosition.y + PAC_SIZE
-    };
-    targets.forEach((el) => {
-      if (el.classList.contains('eaten')) return;
-      const r = el.getBoundingClientRect();
-      if (!r.width || !r.height) return;
-      if (mouth.right > r.left && mouth.left < r.right && mouth.bottom > r.top && mouth.top < r.bottom) {
-        el.classList.add('eaten');
-        pacEaten.push(el);
-        score += 1;
-        updateHud();
+    if (performance.now() - pacLastEat < 70) return;
+    const cx = pacPosition.x + PAC_SIZE / 2;
+    const cy = pacPosition.y + PAC_SIZE / 2;
+    const probes = [
+      [cx + pacDir.x * 24, cy + pacDir.y * 24],
+      [cx, cy],
+      [cx - pacDir.x * 20, cy - pacDir.y * 20]
+    ];
+    for (const [px, py] of probes) {
+      if (px < 0 || py < 0 || px >= window.innerWidth || py >= window.innerHeight) continue;
+      let found = null;
+      for (const el of document.elementsFromPoint(px, py)) {
+        if (isEdible(el)) { found = el; break; }
       }
-    });
+      if (found) {
+        eat(found);
+        pacLastEat = performance.now();
+        break;
+      }
+    }
   };
   step();
   pacFrame = setInterval(step, 16);
@@ -503,7 +573,7 @@ window.addEventListener('keydown', (event) => {
   }
 });
 
-setTimeout(spawnPacman, 67000);
+schedulePacman();
 if (new URLSearchParams(location.search).has('pacman')) setTimeout(spawnPacman, 300);
 
 icons();
