@@ -196,26 +196,6 @@ button { cursor: pointer; }
 .loading { grid-column: 1 / -1; padding: 24px; border: 3px dashed var(--border); color: var(--muted); font-family: var(--font-mono); }
 .center { display: flex; justify-content: center; padding-top: 26px; }
 
-/* ---------- rustfetch install ---------- */
-.install-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-.install-panel h3 { display: flex; align-items: center; gap: 8px; }
-.install-panel .btn { margin-top: 16px; }
-.code-row { display: flex; align-items: stretch; border: 3px solid var(--border); background: var(--card); }
-.code-row code {
-  flex: 1; min-width: 0; padding: 13px; color: var(--fg);
-  font: 700 11px/1.5 var(--font-mono); white-space: pre; overflow-x: auto;
-}
-.copy-cmd {
-  flex: none; padding: 0 14px; border: 0; border-left: 3px solid var(--border);
-  background: var(--accent); color: #111;
-}
-.copy-cmd svg { width: 16px; height: 16px; }
-.copy-cmd:hover { background: #111; color: var(--accent); }
-.install-note { margin: 16px 0 0; font: 600 11px/1.6 var(--font-mono); color: var(--muted); text-transform: uppercase; }
-.install-note a { color: var(--muted); }
-.install-note a:hover { color: #8a6800; }
-[data-theme='dark'] .install-note a:hover { color: var(--accent); }
-
 /* ---------- heatmap ---------- */
 .burn-frame { margin: 0; padding: 16px; background: var(--card); border: 3px solid var(--border); box-shadow: var(--shadow); }
 .burn-frame img { display: block; width: 100%; height: auto; }
@@ -264,7 +244,7 @@ button { cursor: pointer; }
   .hero { grid-template-columns: 1fr; gap: 30px; }
   .hero-art { order: -1; }
   .stats { grid-template-columns: repeat(2, 1fr); }
-  .repo-grid, .about-grid, .install-grid { grid-template-columns: 1fr; }
+  .repo-grid, .about-grid { grid-template-columns: 1fr; }
   .nav { display: none; }
 }
 @media (max-width: 520px) {

@@ -43,15 +43,6 @@ $$('[data-copy]').forEach((btn) => btn.addEventListener('click', async () => {
   }
 }));
 
-$$('.copy-cmd').forEach((btn) => btn.addEventListener('click', async () => {
-  try {
-    await navigator.clipboard.writeText(btn.dataset.command);
-    showToast('Install command copied');
-  } catch (_) {
-    showToast('Could not copy command');
-  }
-}));
-
 /* ---------------- repos: snapshot + live GitHub API ---------------- */
 const FEATURED_REPOS = [
   { name: 'rustfetch', description: 'Fastfetch- and hyfetch-inspired Rust system info tool', language: 'Rust', stars: 0, forks: 0, flag: 'Pinned' },
