@@ -20,6 +20,7 @@
     <a class="brand" href="#top"><span class="brand-dot" aria-hidden="true"></span>hakergeniusz<span class="brand-ext">.io</span></a>
     <nav class="nav" aria-label="Main navigation">
       <a href="#projects">Projects</a>
+      <a href="#install">Install</a>
       <a href="#burn">Token burn</a>
       <a href="#about">About</a>
     </nav>
@@ -89,10 +90,31 @@
       <noscript><p class="loading">JavaScript is required for the live repo list. All links are on <a href="https://github.com/hakergeniusz">GitHub</a>.</p></noscript>
     </section>
 
+    <section id="install" class="section wrap">
+      <div class="section-head">
+        <h2>Install rustfetch</h2>
+        <small>02 / Get it</small>
+      </div>
+      <p class="section-intro">Fast system info in Rust. One command and you are done. These small wrappers forward to the canonical installer in the rustfetch repo, with any flags passed through.</p>
+      <div class="install-grid">
+        <div class="panel install-panel">
+          <h3><i data-lucide="terminal"></i> Linux / macOS</h3>
+          <div class="code-row"><code>curl -fsSL https://hakergeniusz.github.io/rustfetch/install.sh | sh</code><button class="copy-cmd" type="button" data-command="curl -fsSL https://hakergeniusz.github.io/rustfetch/install.sh | sh" aria-label="Copy Linux install command"><i data-lucide="copy"></i></button></div>
+          <a class="btn" href="rustfetch/install.sh" target="_blank" rel="noopener noreferrer"><i data-lucide="file-code"></i> View install.sh</a>
+        </div>
+        <div class="panel install-panel">
+          <h3><i data-lucide="terminal-square"></i> Windows / PowerShell</h3>
+          <div class="code-row"><code>irm https://hakergeniusz.github.io/rustfetch/install.ps1 | iex</code><button class="copy-cmd" type="button" data-command="irm https://hakergeniusz.github.io/rustfetch/install.ps1 | iex" aria-label="Copy Windows install command"><i data-lucide="copy"></i></button></div>
+          <a class="btn" href="rustfetch/install.ps1" target="_blank" rel="noopener noreferrer"><i data-lucide="file-code"></i> View install.ps1</a>
+        </div>
+      </div>
+      <p class="install-note">Prefer the source? Read the <a href="https://github.com/hakergeniusz/rustfetch" target="_blank" rel="noopener noreferrer">rustfetch repository</a> before running any installer.</p>
+    </section>
+
     <section id="burn" class="section wrap">
       <div class="section-head">
         <h2>Token burn</h2>
-        <small>02 / Numbers</small>
+        <small>03 / Numbers</small>
       </div>
       <p class="section-intro">Every token burned by Pi, Claude, ZCode, Qwen, Gemini, OpenCode and Codex, day by day. The heatmap is generated from the live data file and restyled for this site.</p>
       <figure class="burn-frame">
@@ -104,7 +126,7 @@
     <section id="about" class="section wrap">
       <div class="section-head">
         <h2>About &amp; stack</h2>
-        <small>03 / Who</small>
+        <small>04 / Who</small>
       </div>
       <div class="about-grid">
         <div class="panel">

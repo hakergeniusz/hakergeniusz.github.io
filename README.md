@@ -6,6 +6,7 @@ A single-page, brutalist portfolio for [hakergeniusz](https://github.com/hakerge
 
 - Brutalist design with a light/dark theme toggle (remembers your choice)
 - Round avatar with a clean border, no decorative frame
+- rustfetch install section with copyable Linux/macOS and PowerShell one-liners linking to `rustfetch/install.sh` and `rustfetch/install.ps1`
 - Live repo list from the GitHub API with a built-in snapshot fallback
 - Search, language filters and sorting for the repo grid
 - Token usage heatmap restyled from the live SVG data file, with matching light/dark variants
