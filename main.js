@@ -427,10 +427,9 @@ function spawnPacman() {
         updateHud();
       }
     });
-
-    pacFrame = setInterval(step, 16);
   };
   step();
+  pacFrame = setInterval(step, 16);
 
   if (!pacListenersReady) {
     pacListenersReady = true;
