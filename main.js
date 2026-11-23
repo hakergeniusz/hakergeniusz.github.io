@@ -1,0 +1,238 @@
+/* ============================================================
+   hakergeniusz.github.io - interactions and live data
+   ============================================================ */
+
+const $ = (sel) => document.querySelector(sel);
+const $$ = (sel) => Array.from(document.querySelectorAll(sel));
+const icons = () => { if (window.lucide) window.lucide.createIcons(); };
+
+/* ---------------- theme ---------------- */
+const root = document.documentElement;
+const themeToggle = $('#themeToggle');
+
+function setTheme(theme) {
+  root.dataset.theme = theme;
+  localStorage.setItem('hgz-theme', theme);
+  $('#heatmap').src = theme === 'dark' ? 'assets/token-heatmap-dark.svg' : 'assets/token-heatmap-light.svg';
+  if (themeToggle) themeToggle.setAttribute('aria-label', theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode');
+  if (themeToggle) themeToggle.innerHTML = `<i data-lucide="${theme === 'dark' ? 'sun' : 'moon'}"></i>`;
+  icons();
+}
+
+const savedTheme = localStorage.getItem('hgz-theme');
+setTheme(savedTheme || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'));
+themeToggle?.addEventListener('click', () => setTheme(root.dataset.theme === 'dark' ? 'light' : 'dark'));
+
+/* ---------------- avatar shape ---------------- */
+function setAvatarShape(shape) {
+  const avatar = $('#avatar');
+  avatar.classList.remove('shape-round', 'shape-square', 'shape-hex');
+  avatar.classList.add(`shape-${shape}`);
+  localStorage.setItem('hgz-avatar', shape);
+  $$('.pfp-picker button').forEach((btn) => {
+    const active = btn.dataset.shape === shape;
+    btn.classList.toggle('active', active);
+    btn.setAttribute('aria-pressed', String(active));
+  });
+}
+setAvatarShape(localStorage.getItem('hgz-avatar') || 'round');
+$$('.pfp-picker button').forEach((btn) => btn.addEventListener('click', () => setAvatarShape(btn.dataset.shape)));
+
+/* ---------------- toast + copy handles ---------------- */
+const toast = $('#toast');
+let toastTimer;
+function showToast(message) {
+  toast.textContent = message;
+  toast.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => toast.classList.remove('show'), 1800);
+}
+
+$$('[data-copy]').forEach((btn) => btn.addEventListener('click', async () => {
+  const value = btn.dataset.copy;
+  try {
+    await navigator.clipboard.writeText(value);
+    showToast(`Copied @${value}`);
+  } catch (_) {
+    showToast(`Discord: @${value}`);
+  }
+}));
+
+/* ---------------- repos: snapshot + live GitHub API ---------------- */
+const FEATURED_REPOS = [
+  { name: 'rustfetch', description: 'Fastfetch- and hyfetch-inspired Rust system info tool', language: 'Rust', stars: 0, forks: 0, flag: 'Pinned' },
+  { name: 'discord-bot', description: 'Yet Another Shitty Made Discord Bot', language: 'Python', stars: 2, forks: 2, flag: 'Pinned' },
+  { name: 'griffel', description: 'A distraction-free Markdown editor for Linux, written in Rust', language: 'Rust', stars: 1, forks: 0, flag: 'Pinned' },
+  { name: 'freecam', description: 'Freecam - control your camera separately from your player. A Horizon native mod ported from the Minecraft Freecam mod', language: 'Rust', stars: 1, forks: 1, flag: 'Pinned' },
+  { name: 'pi-rs', description: 'Rust rewrite of the Pi coding-agent harness (earendil-works/pi)', language: 'Rust', stars: 0, forks: 0, flag: 'Pinned' },
+  { name: 'emoxidize', description: 'Single-instance GTK4 emoji picker - clean-room Rust implementation of Emojify', language: 'Rust', stars: 0, forks: 0, flag: 'Pinned' },
+  { name: 'sakura-temple-wgpu', description: 'Grand Sakura Valley: native Rust + wgpu 30/WGSL voxel diorama with GPU petals and PCF shadows', language: 'Rust', stars: 0, forks: 0, flag: 'Featured' },
+  { name: 'Frame', description: 'Independent keyboard-driven media player - GTK4/libadwaita rewrite of Cine with libmpv', language: 'Rust', stars: 0, forks: 0 },
+  { name: 'pi-gui', description: 'Native GTK4/libadwaita GUI front-end for the pi agent', language: 'Rust', stars: 0, forks: 0 },
+  { name: 'homebrew-rustfetch', description: 'Homebrew tap for rustfetch', language: 'Ruby', stars: 0, forks: 0 },
+  { name: 'trash-cli-rs', description: 'Move files or folders to Trash instead of rm, for all platforms', language: 'Rust', stars: 0, forks: 0, flag: 'Fork' },
+  { name: 'pi-markdown-extras', description: 'Pi extension: GitHub-style markdown alerts, headings and task checkboxes', language: 'TypeScript', stars: 0, forks: 0 },
+  { name: 'png-to-webp-screenshot-converter', description: 'Rust tool and systemd service converting screenshots to WebP', language: 'Rust', stars: 0, forks: 0 },
+  { name: 'baritone-helper', description: 'Helper utility for Baritone', language: 'Rust', stars: 0, forks: 0 },
+  { name: 'statview', description: 'Small Rust statistics viewer', language: 'Rust', stars: 0, forks: 0 },
+  { name: 'arbor', description: 'Experimental project', language: 'Other', stars: 0, forks: 0 },
+  { name: 'pi-timer', description: ' timer extension for Pi', language: 'TypeScript', stars: 0, forks: 0 },
+  { name: 'pi-guardrails', description: 'Guardrails extension for Pi', language: 'TypeScript', stars: 0, forks: 0 },
+  { name: 'no_chat_reports', description: 'Rust utility for chat reports', language: 'Rust', stars: 0, forks: 0 },
+  { name: 'fly', description: 'Python utility project', language: 'Python', stars: 0, forks: 0 },
+  { name: 'portal_interact', description: 'Python portal interaction scripts', language: 'Python', stars: 0, forks: 0 },
+  { name: 'pingfix', description: 'Python ping fixer', language: 'Python', stars: 0, forks: 0 },
+  { name: 'nofall-gpl-port', description: 'GPL port of the NoFall mod', language: 'Rust', stars: 0, forks: 0 },
+  { name: 'nohunger-gpl-port', description: 'GPL port of the NoHunger mod', language: 'Rust', stars: 0, forks: 0 }
+];
+FEATURED_REPOS[16].description = 'A timer extension for Pi';
+
+let repos = FEATURED_REPOS.slice();
+const state = { search: '', lang: 'all', sort: 'featured', showAll: false };
+const VISIBLE_COUNT = 12;
+
+function langClass(language) {
+  return (language || 'other').toLowerCase().replace(/[^a-z]/g, '');
+}
+
+function makeRepoCard(repo) {
+  const card = document.createElement('a');
+  card.className = 'repo';
+  card.href = `https://github.com/hakergeniusz/${encodeURIComponent(repo.name)}`;
+  card.target = '_blank';
+  card.rel = 'noopener noreferrer';
+
+  const top = document.createElement('div');
+  top.className = 'repo-top';
+  const name = document.createElement('div');
+  name.className = 'repo-name';
+  name.innerHTML = '<i data-lucide="book-open"></i>';
+  name.append(document.createTextNode(repo.name));
+  const visibility = document.createElement('span');
+  visibility.className = 'visibility';
+  visibility.textContent = 'public';
+  top.append(name, visibility);
+
+  const desc = document.createElement('p');
+  desc.textContent = repo.description || 'No description yet.';
+
+  const meta = document.createElement('div');
+  meta.className = 'repo-meta';
+  const lang = document.createElement('span');
+  lang.innerHTML = `<i class="lang-dot ${langClass(repo.language)}"></i>`;
+  lang.append(document.createTextNode(repo.language || 'Other'));
+  const stars = document.createElement('span');
+  stars.innerHTML = '<i data-lucide="star"></i>';
+  stars.append(document.createTextNode(String(repo.stars || 0)));
+  const forks = document.createElement('span');
+  forks.innerHTML = '<i data-lucide="git-fork"></i>';
+  forks.append(document.createTextNode(String(repo.forks || 0)));
+  meta.append(lang, stars, forks);
+  if (repo.flag) {
+    const flag = document.createElement('span');
+    flag.className = 'flag';
+    flag.textContent = repo.flag.toUpperCase();
+    meta.append(flag);
+  }
+
+  card.append(top, desc, meta);
+  return card;
+}
+
+function renderRepos() {
+  const grid = $('#repoGrid');
+  let list = repos.filter((repo) => {
+    const matchesLang = state.lang === 'all' || repo.language === state.lang;
+    const haystack = `${repo.name} ${repo.description || ''} ${repo.language || ''}`.toLowerCase();
+    return matchesLang && haystack.includes(state.search);
+  });
+
+  if (state.sort === 'stars') list.sort((a, b) => b.stars - a.stars);
+  if (state.sort === 'name') list.sort((a, b) => a.name.localeCompare(b.name));
+
+  const shown = state.showAll ? list : list.slice(0, VISIBLE_COUNT);
+  grid.replaceChildren(...shown.map(makeRepoCard));
+  if (!shown.length) {
+    const empty = document.createElement('p');
+    empty.className = 'loading';
+    empty.textContent = 'No repos match those filters.';
+    grid.append(empty);
+  }
+  $('#showMore').hidden = list.length <= VISIBLE_COUNT;
+  $('#showMore').textContent = state.showAll ? 'Show less' : `Show all repos (${list.length})`;
+  icons();
+}
+
+async function loadLiveRepos() {
+  try {
+    const res = await fetch('https://api.github.com/users/hakergeniusz/repos?per_page=100&sort=updated');
+    if (!res.ok) throw new Error(`GitHub API ${res.status}`);
+    const live = await res.json();
+    const byName = new Map(live.map((r) => [r.name, r]));
+    repos = repos.map((repo) => {
+      const l = byName.get(repo.name);
+      if (!l) return repo;
+      return {
+        ...repo,
+        description: l.description || repo.description,
+        language: l.language || repo.language,
+        stars: l.stargazers_count ?? repo.stars,
+        forks: l.forks_count ?? repo.forks
+      };
+    });
+    $('#statRepos').textContent = String(live.length);
+  } catch (err) {
+    console.info('Using built-in repo snapshot:', err.message);
+  }
+  renderRepos();
+}
+
+$('#repoSearch').addEventListener('input', (e) => { state.search = e.target.value.toLowerCase(); renderRepos(); });
+$('#repoSort').addEventListener('change', (e) => { state.sort = e.target.value; renderRepos(); });
+$$('.filter').forEach((btn) => btn.addEventListener('click', () => {
+  $$('.filter').forEach((b) => b.classList.remove('active'));
+  btn.classList.add('active');
+  state.lang = btn.dataset.lang;
+  renderRepos();
+}));
+$('#showMore').addEventListener('click', () => { state.showAll = !state.showAll; renderRepos(); });
+
+loadLiveRepos();
+
+/* ---------------- token stats from the live source SVG ---------------- */
+async function loadTokenStats() {
+  try {
+    const res = await fetch('https://raw.githubusercontent.com/hakergeniusz/hakergeniusz/data/token-heatmap.svg');
+    if (!res.ok) throw new Error(String(res.status));
+    const text = await res.text();
+    const title = text.match(/([\d.]+[BMT]) tokens over (\d+) days/i);
+    if (title) {
+      $('#statTokens').textContent = title[1];
+      $('#statStreak')?.setAttribute('title', `${title[2]} active days tracked`);
+    }
+    const requests = text.match(/([\d,]+) requests/i);
+    if (requests) $('#statRequests').textContent = requests[1];
+    $('#heatmapStatus').textContent = 'Brutalist edition - live data from GitHub';
+  } catch (_) {
+    // Snapshot values stay in place when offline or blocked by CORS.
+  }
+}
+loadTokenStats();
+
+/* ---------------- LOC contributed (generated by scripts/count-loc.py) ---------------- */
+async function loadLocStats() {
+  try {
+    const res = await fetch('assets/loc-data.json', { cache: 'no-store' });
+    if (!res.ok) throw new Error(String(res.status));
+    const data = await res.json();
+    const added = data.totalAdded || 0;
+    $('#statLoc').textContent = added >= 1000000 ? `${(added / 1000000).toFixed(2)}M` : added.toLocaleString();
+    $('#statLoc').title = `${added.toLocaleString()} lines added, ${(data.totalDeleted || 0).toLocaleString()} deleted across ${data.repos || 0} repos (commit code frequency, generated ${data.generatedAt || 'n/a'})`;
+  } catch (_) {
+    $('#statLoc').textContent = '--';
+    $('#statLoc').title = 'Run scripts/count-loc.py to generate this number';
+  }
+}
+loadLocStats();
+
+icons();

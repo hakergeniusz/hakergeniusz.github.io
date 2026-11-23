@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>hakergeniusz - builder of sharp tools</title>
+  <meta name="description" content="Rust tinkerer, AI-agent wrangler and maker of small sharp tools. Repos, token burn and links." />
+  <meta name="color-scheme" content="light dark" />
+  <link rel="icon" type="image/png" href="assets/avatar.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <script src="https://unpkg.com/lucide@latest" defer></script>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="topbar">
+    <a class="brand" href="#top"><span class="brand-dot" aria-hidden="true"></span>hakergeniusz<span class="brand-ext">.io</span></a>
+    <nav class="nav" aria-label="Main navigation">
+      <a href="#projects">Projects</a>
+      <a href="#burn">Token burn</a>
+      <a href="#about">About</a>
+    </nav>
+    <div class="top-actions">
+      <button id="themeToggle" class="icon-btn" type="button" aria-label="Toggle dark mode" title="Toggle dark mode"><i data-lucide="moon"></i></button>
+      <a class="btn btn-primary" href="https://github.com/hakergeniusz" target="_blank" rel="noopener noreferrer"><i data-lucide="github"></i> GitHub</a>
+    </div>
+  </header>
+
+  <main id="main">
+    <section id="top" class="hero wrap">
+      <div class="hero-copy">
+        <p class="eyebrow">Independent developer - since 2022</p>
+        <h1>I BUILD<br /><span>SHARP</span><br />TOOLS.</h1>
+        <p class="lede">Rust, Python, TypeScript. Coding agents, game mods, desktop apps. No fluff, no framework of the month. Just small programs that do their job.</p>
+        <div class="btn-row">
+          <a class="btn btn-primary" href="#projects"><i data-lucide="arrow-down-right"></i> See the work</a>
+          <button class="btn" type="button" data-copy="hakergeniusz"><i data-lucide="message-circle"></i> Discord: @hakergeniusz <i data-lucide="copy"></i></button>
+          <a class="btn" href="https://x.com/hakergeniusz" target="_blank" rel="noopener noreferrer"><i data-lucide="twitter"></i> X: @hakergeniusz</a>
+        </div>
+        <div class="badges">
+          <span class="badge"><i data-lucide="terminal"></i> Favorite agent: opencode</span>
+          <span class="badge badge-hot"><i data-lucide="flame"></i> 36 day streak</span>
+          <span class="badge"><i data-lucide="github"></i> 85 public repos</span>
+        </div>
+      </div>
+      <div class="hero-art">
+        <div class="avatar-stack">
+          <img id="avatar" class="avatar shape-round" src="assets/avatar.png" alt="Avatar of hakergeniusz" width="210" height="210" />
+        </div>
+        <div class="pfp-picker" role="group" aria-label="Avatar style">
+          <button type="button" data-shape="round" class="active" aria-pressed="true">Round</button>
+          <button type="button" data-shape="square" aria-pressed="false">Square</button>
+          <button type="button" data-shape="hex" aria-pressed="false">Hexagon</button>
+        </div>
+        <p class="pfp-hint">Pick your favorite frame</p>
+      </div>
+    </section>
+
+    <div class="ticker" aria-hidden="true">
+      <div class="ticker-track">
+        <span>RUST - PYTHON - TYPESCRIPT - OPENCODE - GTK4 - WGPU - AI AGENTS - LINUX - &nbsp;</span>
+        <span>RUST - PYTHON - TYPESCRIPT - OPENCODE - GTK4 - WGPU - AI AGENTS - LINUX - &nbsp;</span>
+      </div>
+    </div>
+
+    <section class="stats wrap" aria-label="Statistics">
+      <div class="stat"><div class="num" id="statRepos">85</div><div class="label">Public repos</div></div>
+      <div class="stat highlight"><div class="num" id="statTokens">37.12B</div><div class="label">Tokens burned</div></div>
+      <div class="stat"><div class="num" id="statStreak">36</div><div class="label">Day streak</div></div>
+      <div class="stat highlight"><div class="num" id="statRequests">284,675</div><div class="label">Agent requests</div></div>
+      <div class="stat"><div class="num" id="statLoc">--</div><div class="label">LOC contributed</div></div>
+    </section>
+
+    <section id="projects" class="section wrap">
+      <div class="section-head">
+        <h2>Selected work</h2>
+        <small>01 / Repos</small>
+      </div>
+      <div class="controls">
+        <label class="search"><i data-lucide="search"></i><input id="repoSearch" type="search" placeholder="Search repos..." aria-label="Search repositories" /></label>
+        <div class="filters" role="group" aria-label="Filter by language">
+          <button type="button" class="filter active" data-lang="all">All</button>
+          <button type="button" class="filter" data-lang="Rust">Rust</button>
+          <button type="button" class="filter" data-lang="Python">Python</button>
+          <button type="button" class="filter" data-lang="TypeScript">TypeScript</button>
+          <button type="button" class="filter" data-lang="Ruby">Ruby</button>
+        </div>
+        <label class="sort"><span>Sort</span><select id="repoSort" aria-label="Sort repositories"><option value="featured">Featured</option><option value="stars">Stars</option><option value="name">Name</option></select></label>
+      </div>
+      <div id="repoGrid" class="repo-grid">
+        <p class="loading">Loading repos from GitHub...</p>
+      </div>
+      <div class="center"><button id="showMore" class="btn" type="button" hidden>Show all repos</button></div>
+      <noscript><p class="loading">JavaScript is required for the live repo list. All links are on <a href="https://github.com/hakergeniusz">GitHub</a>.</p></noscript>
+    </section>
+
+    <section id="burn" class="section wrap">
+      <div class="section-head">
+        <h2>Token burn</h2>
+        <small>02 / Numbers</small>
+      </div>
+      <p class="section-intro">Every token burned by Pi, Claude, ZCode, Qwen, Gemini, OpenCode and Codex, day by day. The heatmap is generated from the live data file and restyled for this site.</p>
+      <figure class="burn-frame">
+        <img id="heatmap" src="assets/token-heatmap-light.svg" alt="Heatmap of coding agent token usage over the last 12 months" width="700" height="264" />
+        <figcaption><span id="heatmapStatus">Brutalist edition - data from GitHub</span><span>37.12B total - 4.60B record day - 173 active days</span></figcaption>
+      </figure>
+    </section>
+
+    <section id="about" class="section wrap">
+      <div class="section-head">
+        <h2>About &amp; stack</h2>
+        <small>03 / Who</small>
+      </div>
+      <div class="about-grid">
+        <div class="panel">
+          <h3>Tools I reach for</h3>
+          <ul class="stack">
+            <li><span>Rust</span> - systems, CLIs, GTK4 apps</li>
+            <li><span>Python</span> - scripts and bots</li>
+            <li><span>TypeScript</span> - agent extensions</li>
+            <li><span>wgpu / WGSL</span> - graphics experiments</li>
+            <li><span>Linux</span> - daily driver, obviously</li>
+          </ul>
+        </div>
+        <div class="panel panel-accent">
+          <h3><i data-lucide="terminal"></i> Built with opencode</h3>
+          <p>My favorite coding agent. This site and most of the repos above were made with a lot of help from opencode. If the heatmap looks unhinged, that is why.</p>
+          <div class="terminal-line"><span>$</span> opencode run --agent hakergeniusz</div>
+          <a class="btn" href="https://opencode.ai" target="_blank" rel="noopener noreferrer"><i data-lucide="arrow-up-right"></i> opencode.ai</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer wrap">
+    <div><strong>hakergeniusz</strong> - MIT licensed - &copy; 2026</div>
+    <div class="footer-links">
+      <a href="https://github.com/hakergeniusz" target="_blank" rel="noopener noreferrer">GitHub</a>
+      <button type="button" data-copy="hakergeniusz">Discord: @hakergeniusz</button>
+      <a href="https://x.com/hakergeniusz" target="_blank" rel="noopener noreferrer">X / Twitter</a>
+      <a href="LICENSE">MIT license</a>
+    </div>
+  </footer>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script src="main.js" defer></script>
+</body>
+</html>
