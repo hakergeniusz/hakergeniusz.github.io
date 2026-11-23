@@ -23,21 +23,6 @@ const savedTheme = localStorage.getItem('hgz-theme');
 setTheme(savedTheme || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'));
 themeToggle?.addEventListener('click', () => setTheme(root.dataset.theme === 'dark' ? 'light' : 'dark'));
 
-/* ---------------- avatar shape ---------------- */
-function setAvatarShape(shape) {
-  const avatar = $('#avatar');
-  avatar.classList.remove('shape-round', 'shape-square', 'shape-hex');
-  avatar.classList.add(`shape-${shape}`);
-  localStorage.setItem('hgz-avatar', shape);
-  $$('.pfp-picker button').forEach((btn) => {
-    const active = btn.dataset.shape === shape;
-    btn.classList.toggle('active', active);
-    btn.setAttribute('aria-pressed', String(active));
-  });
-}
-setAvatarShape(localStorage.getItem('hgz-avatar') || 'round');
-$$('.pfp-picker button').forEach((btn) => btn.addEventListener('click', () => setAvatarShape(btn.dataset.shape)));
-
 /* ---------------- toast + copy handles ---------------- */
 const toast = $('#toast');
 let toastTimer;

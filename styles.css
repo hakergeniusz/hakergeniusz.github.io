@@ -112,37 +112,11 @@ button { cursor: pointer; }
 .badge svg { width: 14px; height: 14px; }
 .badge-hot { background: var(--accent); color: #111; }
 
-.hero-art { display: flex; flex-direction: column; align-items: center; gap: 14px; }
-.avatar-stack {
-  position: relative; width: 210px; height: 210px;
-  display: grid; place-items: center;
-}
-.avatar-stack::before {
-  content: ''; position: absolute; inset: -12px 12px 12px -12px;
-  background: var(--accent); border: 3px solid var(--border);
-}
-.avatar-stack:has(.shape-round)::before { border-radius: 50%; inset: -12px; }
-.avatar-stack:has(.shape-hex)::before {
-  inset: -12px; clip-path: polygon(25% 5%, 75% 5%, 100% 50%, 75% 95%, 25% 95%, 0% 50%);
-}
+.hero-art { display: flex; justify-content: center; }
 .avatar {
-  position: relative; width: 210px; height: 210px; object-fit: cover;
-  border: 3px solid var(--border); background: var(--card);
+  width: 210px; height: 210px; object-fit: cover;
+  border: 3px solid var(--border); border-radius: 50%; background: var(--card);
 }
-.shape-round { border-radius: 50%; }
-.shape-square { border-radius: 0; }
-.shape-hex {
-  border-radius: 0;
-  clip-path: polygon(25% 5%, 75% 5%, 100% 50%, 75% 95%, 25% 95%, 0% 50%);
-}
-.pfp-picker { display: flex; gap: 7px; flex-wrap: wrap; justify-content: center; }
-.pfp-picker button {
-  padding: 8px 10px; background: var(--card); color: var(--muted);
-  border: 3px solid var(--border);
-  font: 700 10px/1 var(--font-mono); text-transform: uppercase;
-}
-.pfp-picker button.active { background: var(--accent); color: #111; }
-.pfp-hint { margin: -6px 0 0; font: 500 10px/1 var(--font-mono); color: var(--muted); text-transform: uppercase; }
 
 /* ---------- ticker ---------- */
 .ticker { overflow: hidden; background: var(--accent); color: #111; border-block: 3px solid var(--border); }
@@ -244,10 +218,8 @@ button { cursor: pointer; }
 .stack li:last-child { border-bottom: 0; }
 .stack span { display: inline-block; min-width: 130px; font: 700 12px/1 var(--font-mono); color: var(--fg); text-transform: uppercase; }
 .panel-accent { background: var(--accent); color: #111; }
-.panel-accent p, .panel-accent .terminal-line { color: #111; }
+.panel-accent p { color: #111; }
 .panel-accent .btn { background: #111; color: var(--accent); border-color: #111; box-shadow: 4px 4px 0 #111; }
-.terminal-line { padding: 12px; margin: 16px 0; background: #111; color: var(--accent) !important; font: 700 12px/1.4 var(--font-mono); overflow-x: auto; }
-.terminal-line span { color: #fff; margin-right: 8px; }
 
 /* ---------- footer + toast ---------- */
 .footer {

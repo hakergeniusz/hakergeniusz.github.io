@@ -5,7 +5,7 @@ A single-page, brutalist portfolio for [hakergeniusz](https://github.com/hakerge
 ## Features
 
 - Brutalist design with a light/dark theme toggle (remembers your choice)
-- Avatar with three display styles: round (default), square and hexagon
+- Round avatar with a clean border, no decorative frame
 - Live repo list from the GitHub API with a built-in snapshot fallback
 - Search, language filters and sorting for the repo grid
 - Token usage heatmap restyled from the live SVG data file, with matching light/dark variants
