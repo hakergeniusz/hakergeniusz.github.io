@@ -163,18 +163,18 @@ button { cursor: pointer; }
 /* ---------- pac-man easter egg ---------- */
 .pacman {
   position: fixed; left: 0; top: 0; width: 64px; height: 64px; z-index: 250;
-  pointer-events: none; background: #ffd400; border-radius: 50%;
-  clip-path: polygon(100% 50%, 86% 18%, 50% 0, 14% 18%, 0 50%, 14% 82%, 50% 100%, 86% 82%, 86% 68%, 55% 50%, 86% 32%);
-  animation: pac-chomp .28s ease-in-out infinite alternate;
+  pointer-events: none; background: #ffd400;
+  clip-path: path('M 32 32 L 58.3 15.6 A 31 31 0 1 0 58.3 48.4 Z');
+  animation: pac-chomp .26s ease-in-out infinite alternate;
   will-change: transform;
 }
 .pacman::after {
-  content: ''; position: absolute; top: 10px; left: 38px;
+  content: ''; position: absolute; top: 13px; left: 35px;
   width: 7px; height: 7px; border-radius: 50%; background: #111;
 }
 @keyframes pac-chomp {
-  from { clip-path: polygon(100% 50%, 86% 18%, 50% 0, 14% 18%, 0 50%, 14% 82%, 50% 100%, 86% 82%, 86% 68%, 55% 50%, 86% 32%); }
-  to { clip-path: polygon(100% 50%, 86% 18%, 50% 0, 14% 18%, 0 50%, 14% 82%, 50% 100%, 86% 82%); }
+  from { clip-path: path('M 32 32 L 58.3 15.6 A 31 31 0 1 0 58.3 48.4 Z'); }
+  to { clip-path: path('M 32 32 L 62.9 29.8 A 31 31 0 1 0 62.9 34.2 Z'); }
 }
 .pac-hud {
   position: fixed; left: 12px; bottom: 12px; z-index: 251; pointer-events: none;
