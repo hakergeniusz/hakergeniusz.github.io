@@ -76,7 +76,7 @@ const FEATURED_REPOS = [
   { name: 'baritone-helper', description: 'Helper utility for Baritone', language: 'Rust', stars: 0, forks: 0 },
   { name: 'statview', description: 'Small Rust statistics viewer', language: 'Rust', stars: 0, forks: 0 },
   { name: 'arbor', description: 'Experimental project', language: 'Other', stars: 0, forks: 0 },
-  { name: 'pi-timer', description: ' timer extension for Pi', language: 'TypeScript', stars: 0, forks: 0 },
+  { name: 'pi-timer', description: 'A timer extension for Pi', language: 'TypeScript', stars: 0, forks: 0 },
   { name: 'pi-guardrails', description: 'Guardrails extension for Pi', language: 'TypeScript', stars: 0, forks: 0 },
   { name: 'no_chat_reports', description: 'Rust utility for chat reports', language: 'Rust', stars: 0, forks: 0 },
   { name: 'fly', description: 'Python utility project', language: 'Python', stars: 0, forks: 0 },
@@ -181,6 +181,8 @@ async function loadLiveRepos() {
       };
     });
     $('#statRepos').textContent = String(live.length);
+    const badge = $('#badgeRepos');
+    if (badge) badge.lastChild.textContent = ` ${live.length} public repos`;
   } catch (err) {
     console.info('Using built-in repo snapshot:', err.message);
   }
@@ -210,7 +212,7 @@ async function loadTokenStats() {
       $('#statTokens').textContent = title[1];
       $('#statStreak')?.setAttribute('title', `${title[2]} active days tracked`);
     }
-    const requests = text.match(/([\d,]+) requests/i);
+    const requests = text.match(/([\d,]+)\s+requests\s*·\s*tracking since/i);
     if (requests) $('#statRequests').textContent = requests[1];
     $('#heatmapStatus').textContent = 'Brutalist edition - live data from GitHub';
   } catch (_) {
