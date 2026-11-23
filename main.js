@@ -342,7 +342,8 @@ let pacActive = false;
 let pacFrame = null;
 let pacListenersReady = false;
 const PAC_SIZE = 64;
-const PAC_SPEED = 2.5;
+const PAC_SPEED = 2;
+let pacLoopToken = 0;
 let pacPosition = { x: 0, y: 0 };
 let pacAngle = 180;
 let pacSwipe = { x: 0, y: 0 };
@@ -354,6 +355,7 @@ let pacEaten = [];
 function stopPacman() {
   if (!pacActive) return;
   pacActive = false;
+  pacLoopToken += 1;
   clearInterval(pacFrame);
   $('.pacman')?.remove();
   $('.pac-hud')?.remove();
@@ -369,6 +371,7 @@ function stopPacman() {
 function spawnPacman() {
   if (pacActive) return;
   pacActive = true;
+  const myToken = ++pacLoopToken;
 
   const pacman = document.createElement('div');
   pacman.className = 'pacman';
@@ -396,7 +399,7 @@ function spawnPacman() {
     .filter((el) => el.getClientRects().length > 0 && !el.closest('.pacman, .pac-hud, #avatarZone'));
 
   const step = () => {
-    if (!pacActive) return;
+    if (!pacActive || myToken !== pacLoopToken) return;
     let dx = pacSwipe.x * PAC_SPEED;
     let dy = pacSwipe.y * PAC_SPEED;
     if (pacKeys.has('arrowleft') || pacKeys.has('a')) dx -= PAC_SPEED;
