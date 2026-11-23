@@ -6,22 +6,63 @@ const $ = (sel) => document.querySelector(sel);
 const $$ = (sel) => Array.from(document.querySelectorAll(sel));
 const icons = () => { if (window.lucide) window.lucide.createIcons(); };
 
-/* ---------------- theme ---------------- */
+/* ---------------- theme + true-dark easter egg ---------------- */
 const root = document.documentElement;
 const themeToggle = $('#themeToggle');
+const HEATMAPS = {
+  light: 'assets/token-heatmap-light.svg',
+  dark: 'assets/token-heatmap-dark.svg',
+  'true-dark': 'assets/token-heatmap-true-dark.svg'
+};
 
 function setTheme(theme) {
   root.dataset.theme = theme;
   localStorage.setItem('hgz-theme', theme);
-  $('#heatmap').src = theme === 'dark' ? 'assets/token-heatmap-dark.svg' : 'assets/token-heatmap-light.svg';
-  if (themeToggle) themeToggle.setAttribute('aria-label', theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode');
-  if (themeToggle) themeToggle.innerHTML = `<i data-lucide="${theme === 'dark' ? 'sun' : 'moon'}"></i>`;
+  $('#heatmap').src = HEATMAPS[theme] || HEATMAPS.light;
+  themeToggle?.setAttribute('aria-label', theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode');
+  if (themeToggle) themeToggle.innerHTML = `<i data-lucide="${theme === 'light' ? 'moon' : 'sun'}"></i>`;
   icons();
 }
 
 const savedTheme = localStorage.getItem('hgz-theme');
 setTheme(savedTheme || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'));
-themeToggle?.addEventListener('click', () => setTheme(root.dataset.theme === 'dark' ? 'light' : 'dark'));
+
+let holdTimer = null;
+let longPressFired = false;
+
+function startHold() {
+  longPressFired = false;
+  holdTimer = setTimeout(() => {
+    longPressFired = true;
+    setTheme('true-dark');
+    showToast('TRUE DARK MODE');
+  }, 3000);
+}
+function cancelHold() {
+  clearTimeout(holdTimer);
+  holdTimer = null;
+}
+
+themeToggle?.addEventListener('pointerdown', (event) => {
+  if (event.button === 0 || event.button === undefined) startHold();
+});
+['pointerup', 'pointerleave', 'pointercancel'].forEach((evt) => themeToggle?.addEventListener(evt, cancelHold));
+themeToggle?.addEventListener('keydown', (event) => {
+  if ((event.key === 'Enter' || event.key === ' ') && !event.repeat) startHold();
+});
+themeToggle?.addEventListener('keyup', (event) => {
+  if (event.key === 'Enter' || event.key === ' ') cancelHold();
+});
+themeToggle?.addEventListener('click', () => {
+  if (longPressFired) { longPressFired = false; return; }
+  setTheme(root.dataset.theme === 'light' ? 'dark' : 'light');
+});
+
+const trueDarkOverlay = $('#trueDarkOverlay');
+window.addEventListener('pointermove', (event) => {
+  trueDarkOverlay?.style.setProperty('--mx', `${event.clientX}px`);
+  trueDarkOverlay?.style.setProperty('--my', `${event.clientY}px`);
+}, { passive: true });
 
 /* ---------------- toast + copy handles ---------------- */
 const toast = $('#toast');
@@ -209,7 +250,7 @@ loadLiveRepos();
 
 /* ---------------- token stats from the displayed SVG graph ---------------- */
 async function loadTokenStats() {
-  const file = root.dataset.theme === 'dark' ? 'assets/token-heatmap-dark.svg' : 'assets/token-heatmap-light.svg';
+  const file = HEATMAPS[root.dataset.theme] || HEATMAPS.light;
   try {
     const res = await fetch(file);
     if (!res.ok) throw new Error(String(res.status));
