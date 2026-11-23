@@ -346,10 +346,9 @@ const PAC_SPEED = 4;
 let pacLoopToken = 0;
 let pacPosition = { x: 0, y: 0 };
 let pacAngle = 180;
-let pacSwipe = { x: 0, y: 0 };
+let pacDir = { x: 0, y: 0 };
 let pacSwipeStart = null;
 let pacOldTouchAction = '';
-const pacKeys = new Set();
 let pacEaten = [];
 
 function stopPacman() {
@@ -361,8 +360,7 @@ function stopPacman() {
   $('.pac-hud')?.remove();
   pacEaten.forEach((el) => el.classList.remove('eaten'));
   pacEaten = [];
-  pacKeys.clear();
-  pacSwipe = { x: 0, y: 0 };
+  pacDir = { x: 0, y: 0 };
   pacSwipeStart = null;
   document.body.style.touchAction = pacOldTouchAction;
   showToast('Pac-Man restored everything');
@@ -376,12 +374,15 @@ function spawnPacman() {
   const pacman = document.createElement('div');
   pacman.className = 'pacman';
   pacman.setAttribute('aria-hidden', 'true');
+  pacman.innerHTML = '<div class="pacman-body"></div><div class="pacman-eye"></div>';
+  const pacBody = pacman.querySelector('.pacman-body');
   const hud = document.createElement('div');
   hud.className = 'pac-hud';
   document.body.append(pacman, hud);
   pacOldTouchAction = document.body.style.touchAction;
   document.body.style.touchAction = 'none';
   pacAngle = 180;
+  pacDir = { x: 0, y: 0 };
 
   const zone = $('#avatarZone');
   const rect = zone?.getBoundingClientRect() || { left: 60, top: 120, width: 210, height: 210 };
@@ -389,7 +390,8 @@ function spawnPacman() {
     x: Math.max(8, Math.min(window.innerWidth - PAC_SIZE - 8, rect.left + rect.width / 2 - PAC_SIZE / 2)),
     y: Math.max(8, Math.min(window.innerHeight - PAC_SIZE - 8, rect.top + rect.height / 2 - PAC_SIZE / 2))
   };
-  pacman.style.transform = `translate(${pacPosition.x}px, ${pacPosition.y}px) rotate(${pacAngle}deg)`;
+  pacman.style.transform = `translate(${pacPosition.x}px, ${pacPosition.y}px)`;
+  pacBody.style.transform = `rotate(${pacAngle}deg)`;
 
   let score = 0;
   const updateHud = () => { hud.textContent = `PAC-MAN - ${score} EATEN - WASD / ARROWS / SWIPE - ESC RESTORE`; };
@@ -400,18 +402,22 @@ function spawnPacman() {
 
   const step = () => {
     if (!pacActive || myToken !== pacLoopToken) return;
-    let dx = pacSwipe.x * PAC_SPEED;
-    let dy = pacSwipe.y * PAC_SPEED;
-    if (pacKeys.has('arrowleft') || pacKeys.has('a')) dx -= PAC_SPEED;
-    if (pacKeys.has('arrowright') || pacKeys.has('d')) dx += PAC_SPEED;
-    if (pacKeys.has('arrowup') || pacKeys.has('w')) dy -= PAC_SPEED;
-    if (pacKeys.has('arrowdown') || pacKeys.has('s')) dy += PAC_SPEED;
+    let dx = pacDir.x * PAC_SPEED;
+    let dy = pacDir.y * PAC_SPEED;
 
-    if (dx || dy) pacAngle = (Math.atan2(dy, dx) * 180) / Math.PI;
+    const nextX = pacPosition.x + dx;
+    const nextY = pacPosition.y + dy;
+    if (nextX < 0 || nextX > window.innerWidth - PAC_SIZE) { dx = 0; pacDir.x = 0; }
+    if (nextY < 0 || nextY > window.innerHeight - PAC_SIZE) { dy = 0; pacDir.y = 0; }
+
+    if (dx || dy) {
+      pacAngle = (Math.atan2(dy, dx) * 180) / Math.PI;
+      pacBody.style.transform = `rotate(${pacAngle}deg)`;
+    }
 
     pacPosition.x = Math.max(0, Math.min(window.innerWidth - PAC_SIZE, pacPosition.x + dx));
     pacPosition.y = Math.max(0, Math.min(window.innerHeight - PAC_SIZE, pacPosition.y + dy));
-    pacman.style.transform = `translate(${pacPosition.x}px, ${pacPosition.y}px) rotate(${pacAngle}deg)`;
+    pacman.style.transform = `translate(${pacPosition.x}px, ${pacPosition.y}px)`;
 
     const mouth = {
       left: pacPosition.x,
@@ -441,12 +447,17 @@ function spawnPacman() {
       const key = event.key.toLowerCase();
       if (key === 'escape') { stopPacman(); return; }
       if (event.target instanceof Element && event.target.matches('input, textarea, select')) return;
-      if (['arrowup', 'arrowdown', 'arrowleft', 'arrowright', 'w', 'a', 's', 'd'].includes(key)) {
+      const dirs = {
+        arrowleft: [-1, 0], a: [-1, 0],
+        arrowright: [1, 0], d: [1, 0],
+        arrowup: [0, -1], w: [0, -1],
+        arrowdown: [0, 1], s: [0, 1]
+      };
+      if (dirs[key]) {
         event.preventDefault();
-        pacKeys.add(key);
+        pacDir = { x: dirs[key][0], y: dirs[key][1] };
       }
     });
-    window.addEventListener('keyup', (event) => pacKeys.delete(event.key.toLowerCase()));
 
     window.addEventListener('pointerdown', (event) => {
       if (!pacActive || event.pointerType === 'mouse') return;
@@ -460,12 +471,12 @@ function spawnPacman() {
       const deltaY = event.clientY - pacSwipeStart.y;
       const length = Math.hypot(deltaX, deltaY);
       if (length > 6) {
-        pacSwipe = { x: deltaX / length, y: deltaY / length };
+        pacDir = { x: deltaX / length, y: deltaY / length };
         pacSwipeStart = { x: event.clientX, y: event.clientY };
       }
     }, { passive: false });
 
-    const endSwipe = () => { pacSwipeStart = null; pacSwipe = { x: 0, y: 0 }; };
+    const endSwipe = () => { pacSwipeStart = null; };
     window.addEventListener('pointerup', endSwipe, { passive: true });
     window.addEventListener('pointercancel', endSwipe, { passive: true });
   }
@@ -480,8 +491,12 @@ window.addEventListener('keydown', (event) => {
     pacCodeIndex += 1;
     if (pacCodeIndex === PAC_CODE.length) {
       pacCodeIndex = 0;
-      spawnPacman();
-      showToast('PAC-MAN unlocked');
+      if (avatar && avatar.classList.contains('is-gone')) {
+        spawnPacman();
+        showToast('PAC-MAN unlocked');
+      } else {
+        showToast('Poof the avatar first');
+      }
     }
   } else {
     pacCodeIndex = key === PAC_CODE[0] ? 1 : 0;
