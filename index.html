@@ -37,7 +37,7 @@
         <p class="lede">Rust, Python, TypeScript. Coding agents, game mods, desktop apps. No fluff, no framework of the month. Just small programs that do their job.</p>
         <div class="btn-row">
           <a class="btn btn-primary" href="#projects"><i data-lucide="arrow-down-right"></i> See the work</a>
-          <button class="btn" type="button" data-copy="hakergeniusz"><i data-lucide="message-circle"></i> Discord: @hakergeniusz <i data-lucide="copy"></i></button>
+          <button class="btn" type="button" data-copy="hakergeniusz" title="Click to copy the handle, Shift-click to open the Discord profile"><i data-lucide="message-circle"></i> Discord: @hakergeniusz <i data-lucide="copy"></i></button>
           <a class="btn" href="https://x.com/hakergeniusz" target="_blank" rel="noopener noreferrer"><i data-lucide="twitter"></i> X: @hakergeniusz</a>
         </div>
         <div class="badges">
@@ -60,7 +60,7 @@
 
     <section class="stats wrap" aria-label="Statistics">
       <div class="stat"><div class="num" id="statRepos">85</div><div class="label">Public repos</div></div>
-      <div class="stat highlight"><div class="num" id="statTokens">37.12B</div><div class="label">Tokens burned</div></div>
+      <div class="stat highlight"><div class="num" id="statTokens">37.29B</div><div class="label">Tokens burned</div></div>
       <div class="stat"><div class="num" id="statStreak">36</div><div class="label">Day streak</div></div>
       <div class="stat highlight"><div class="num" id="statRequests">284,675</div><div class="label">Agent requests</div></div>
       <div class="stat"><div class="num" id="statLoc">--</div><div class="label">LOC contributed</div></div>
@@ -78,14 +78,13 @@
           <button type="button" class="filter" data-lang="Rust">Rust</button>
           <button type="button" class="filter" data-lang="Python">Python</button>
           <button type="button" class="filter" data-lang="TypeScript">TypeScript</button>
-          <button type="button" class="filter" data-lang="Ruby">Ruby</button>
         </div>
         <label class="sort"><span>Sort</span><select id="repoSort" aria-label="Sort repositories"><option value="featured">Featured</option><option value="stars">Stars</option><option value="name">Name</option></select></label>
       </div>
       <div id="repoGrid" class="repo-grid">
         <p class="loading">Loading repos from GitHub...</p>
       </div>
-      <div class="center"><button id="showMore" class="btn" type="button" hidden>Show all repos</button></div>
+      <div class="center"><button id="showMore" class="btn" type="button" hidden>Show more repos</button></div>
       <noscript><p class="loading">JavaScript is required for the live repo list. All links are on <a href="https://github.com/hakergeniusz">GitHub</a>.</p></noscript>
     </section>
 
@@ -94,10 +93,10 @@
         <h2>Token burn</h2>
         <small>02 / Numbers</small>
       </div>
-      <p class="section-intro">Every token burned by Pi, Claude, ZCode, Qwen, Gemini, OpenCode and Codex, day by day. The heatmap is generated from the live data file and restyled for this site.</p>
+      <p class="section-intro">Every token burned across all your coding agents, day by day. The heatmap is generated from the live data file and restyled for this site.</p>
       <figure class="burn-frame">
         <img id="heatmap" src="assets/token-heatmap-light.svg" alt="Heatmap of coding agent token usage over the last 12 months" width="700" height="264" />
-        <figcaption><span id="heatmapStatus">Brutalist edition - data from GitHub</span><span>37.12B total - 4.60B record day - 173 active days</span></figcaption>
+        <figcaption><span id="heatmapStatus">Brutalist edition - data from GitHub</span><span id="burnTotals">37.29B total - 173 active days</span></figcaption>
       </figure>
     </section>
 
@@ -130,7 +129,7 @@
     <div><strong>hakergeniusz</strong> - MIT licensed - &copy; 2026</div>
     <div class="footer-links">
       <a href="https://github.com/hakergeniusz" target="_blank" rel="noopener noreferrer">GitHub</a>
-      <button type="button" data-copy="hakergeniusz">Discord: @hakergeniusz</button>
+      <button type="button" data-copy="hakergeniusz" title="Click to copy the handle, Shift-click to open the Discord profile">Discord: @hakergeniusz</button>
       <a href="https://x.com/hakergeniusz" target="_blank" rel="noopener noreferrer">X / Twitter</a>
       <a href="LICENSE">MIT license</a>
     </div>

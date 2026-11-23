@@ -33,7 +33,13 @@ function showToast(message) {
   toastTimer = setTimeout(() => toast.classList.remove('show'), 1800);
 }
 
-$$('[data-copy]').forEach((btn) => btn.addEventListener('click', async () => {
+const DISCORD_PROFILE = 'https://discord.com/users/1257212645933580289';
+
+$$('[data-copy]').forEach((btn) => btn.addEventListener('click', async (event) => {
+  if (event.shiftKey) {
+    window.open(DISCORD_PROFILE, '_blank', 'noopener,noreferrer');
+    return;
+  }
   const value = btn.dataset.copy;
   try {
     await navigator.clipboard.writeText(value);
@@ -53,24 +59,39 @@ const FEATURED_REPOS = [
   { name: 'emoxidize', description: 'Single-instance GTK4 emoji picker - clean-room Rust implementation of Emojify', language: 'Rust', stars: 0, forks: 0, flag: 'Pinned' },
   { name: 'sakura-temple-wgpu', description: 'Grand Sakura Valley: native Rust + wgpu 30/WGSL voxel diorama with GPU petals and PCF shadows', language: 'Rust', stars: 0, forks: 0, flag: 'Featured' },
   { name: 'Frame', description: 'Independent keyboard-driven media player - GTK4/libadwaita rewrite of Cine with libmpv', language: 'Rust', stars: 0, forks: 0 },
+  { name: 'radix', description: 'Clean-room black-box rewrite of GNOME Calculator in Rust/GTK4', language: 'Rust', stars: 0, forks: 0 },
+  { name: 'hashcheck', description: 'Check hashes for your files - GTK4/libadwaita app in Rust', language: 'Rust', stars: 0, forks: 0 },
+  { name: 'tiles', description: 'The classic 2048 puzzle, built with GTK4 and libadwaita in Rust', language: 'Rust', stars: 0, forks: 0 },
   { name: 'pi-gui', description: 'Native GTK4/libadwaita GUI front-end for the pi agent', language: 'Rust', stars: 0, forks: 0 },
-  { name: 'homebrew-rustfetch', description: 'Homebrew tap for rustfetch', language: 'Ruby', stars: 0, forks: 0 },
-  { name: 'trash-cli-rs', description: 'Move files or folders to Trash instead of rm, for all platforms', language: 'Rust', stars: 0, forks: 0, flag: 'Fork' },
-  { name: 'pi-markdown-extras', description: 'Pi extension: GitHub-style markdown alerts, headings and task checkboxes', language: 'TypeScript', stars: 0, forks: 0 },
+  { name: 'fullbright', description: 'Native Horizon mod that toggles full brightness in-game with a rebindable key', language: 'Rust', stars: 0, forks: 0 },
   { name: 'png-to-webp-screenshot-converter', description: 'Rust tool and systemd service converting screenshots to WebP', language: 'Rust', stars: 0, forks: 0 },
   { name: 'baritone-helper', description: 'Helper utility for Baritone', language: 'Rust', stars: 0, forks: 0 },
+  { name: 'trash-cli-rs', description: 'Move files or folders to Trash instead of rm, for all platforms', language: 'Rust', stars: 0, forks: 0, flag: 'Fork' },
+  { name: 'arbor', description: 'Arbor - see where your disk space grows: clean-room Rust/GTK4 disk usage analyzer', language: 'Rust', stars: 0, forks: 0 },
   { name: 'statview', description: 'Small Rust statistics viewer', language: 'Rust', stars: 0, forks: 0 },
-  { name: 'arbor', description: 'Experimental project', language: 'Other', stars: 0, forks: 0 },
+  { name: 'no_chat_reports', description: 'Rust utility for chat reports', language: 'Rust', stars: 0, forks: 0 },
+  { name: 'nofall-gpl-port', description: 'GPL port of the NoFall mod', language: 'Rust', stars: 0, forks: 0 },
+  { name: 'nohunger-gpl-port', description: 'GPL port of the NoHunger mod', language: 'Rust', stars: 0, forks: 0 },
+  { name: 'pi-markdown-extras', description: 'Pi extension: GitHub-style markdown alerts, headings and task checkboxes', language: 'TypeScript', stars: 0, forks: 0 },
   { name: 'pi-timer', description: 'A timer extension for Pi', language: 'TypeScript', stars: 0, forks: 0 },
   { name: 'pi-guardrails', description: 'Guardrails extension for Pi', language: 'TypeScript', stars: 0, forks: 0 },
-  { name: 'no_chat_reports', description: 'Rust utility for chat reports', language: 'Rust', stars: 0, forks: 0 },
+  { name: 'pi-cord', description: 'Chat with your Pi coding agent from Discord or Telegram with streaming replies', language: 'TypeScript', stars: 0, forks: 0 },
+  { name: 'pi-subagents', description: 'Subagents for Pi - run isolated child agents in parallel', language: 'TypeScript', stars: 0, forks: 0 },
+  { name: 'pi-token-usage', description: 'Global token and cost accounting for pi, with a per-model breakdown', language: 'TypeScript', stars: 0, forks: 0 },
+  { name: 'pi-sandbox', description: 'Optional bubblewrap isolation for pi bash tool calls', language: 'TypeScript', stars: 0, forks: 0 },
+  { name: 'pi-ssh', description: "Run pi coding agent's tools on a remote machine over SSH", language: 'TypeScript', stars: 0, forks: 0 },
+  { name: 'pi-title', description: 'Auto-titles pi coding agent sessions with a cheap nested model call', language: 'TypeScript', stars: 0, forks: 0 },
+  { name: 'pi-tmux', description: 'tmux integration for the pi coding agent', language: 'TypeScript', stars: 0, forks: 0 },
+  { name: 'pi-zsh', description: 'Pi extension: bash tool runs zsh with your real .zshrc loaded', language: 'TypeScript', stars: 0, forks: 0 },
+  { name: 'discord-tracker', description: 'A Discord bot for tracking various events', language: 'Python', stars: 0, forks: 0 },
+  { name: 'gphotos-storage-saver', description: 'Merge Google Takeout metadata and convert JPEGs to efficient formats', language: 'Python', stars: 0, forks: 0 },
+  { name: 'pi-rdp-computer-use', description: 'Pi extension: computer use over RDP (headless screenshots and input)', language: 'Python', stars: 0, forks: 0 },
+  { name: 'bad-apple-keyboard', description: 'Bad Apple keyboard animation', language: 'Python', stars: 0, forks: 0 },
   { name: 'fly', description: 'Python utility project', language: 'Python', stars: 0, forks: 0 },
   { name: 'portal_interact', description: 'Python portal interaction scripts', language: 'Python', stars: 0, forks: 0 },
   { name: 'pingfix', description: 'Python ping fixer', language: 'Python', stars: 0, forks: 0 },
-  { name: 'nofall-gpl-port', description: 'GPL port of the NoFall mod', language: 'Rust', stars: 0, forks: 0 },
-  { name: 'nohunger-gpl-port', description: 'GPL port of the NoHunger mod', language: 'Rust', stars: 0, forks: 0 }
+  { name: 'homebrew-rustfetch', description: 'Homebrew tap for rustfetch', language: 'Ruby', stars: 0, forks: 0 }
 ];
-FEATURED_REPOS[16].description = 'A timer extension for Pi';
 
 let repos = FEATURED_REPOS.slice();
 const state = { search: '', lang: 'all', sort: 'featured', showAll: false };
@@ -144,7 +165,7 @@ function renderRepos() {
     grid.append(empty);
   }
   $('#showMore').hidden = list.length <= VISIBLE_COUNT;
-  $('#showMore').textContent = state.showAll ? 'Show less' : `Show all repos (${list.length})`;
+  $('#showMore').textContent = state.showAll ? 'Show less' : `Show more repos (${list.length})`;
   icons();
 }
 
@@ -186,15 +207,17 @@ $('#showMore').addEventListener('click', () => { state.showAll = !state.showAll;
 
 loadLiveRepos();
 
-/* ---------------- token stats from the live source SVG ---------------- */
+/* ---------------- token stats from the displayed SVG graph ---------------- */
 async function loadTokenStats() {
+  const file = root.dataset.theme === 'dark' ? 'assets/token-heatmap-dark.svg' : 'assets/token-heatmap-light.svg';
   try {
-    const res = await fetch('https://raw.githubusercontent.com/hakergeniusz/hakergeniusz/data/token-heatmap.svg');
+    const res = await fetch(file);
     if (!res.ok) throw new Error(String(res.status));
     const text = await res.text();
     const title = text.match(/([\d.]+[BMT]) tokens over (\d+) days/i);
     if (title) {
       $('#statTokens').textContent = title[1];
+      $('#burnTotals').textContent = `${title[1]} total - ${title[2]} active days`;
       $('#statStreak')?.setAttribute('title', `${title[2]} active days tracked`);
     }
     const requests = text.match(/([\d,]+)\s+requests\s*·\s*tracking since/i);
