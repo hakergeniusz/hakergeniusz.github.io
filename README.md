@@ -6,7 +6,7 @@ A single-page, brutalist portfolio for [hakergeniusz](https://github.com/hakerge
 
 - Brutalist design with a light/dark theme toggle (remembers your choice) and a TRUE dark mode easter egg: hold the theme button for 3 seconds, click again to switch back
 - Round avatar with a clean border, no decorative frame (click it to poof it, click again to restore)
-- Two more easter eggs: 67 seconds after load a controllable Pac-Man spawns at the avatar spot and eats UI text (WASD/arrows, Escape restores), or type `PACMAN` to trigger it instantly
+- Two more easter eggs: 67 seconds after load a big circular Pac-Man spawns at the avatar spot, turns toward WASD/arrow/swipe movement and eats UI text (Escape restores), or type `PACMAN` to trigger it instantly
 - Live repo list from the GitHub API with a built-in snapshot fallback
 - Search, language filters and sorting for the repo grid
 - Token usage heatmap restyled from the live SVG data file, with matching light/dark variants

@@ -162,19 +162,19 @@ button { cursor: pointer; }
 
 /* ---------- pac-man easter egg ---------- */
 .pacman {
-  position: fixed; left: 0; top: 0; width: 34px; height: 34px; z-index: 250;
+  position: fixed; left: 0; top: 0; width: 64px; height: 64px; z-index: 250;
   pointer-events: none; background: #ffd400; border-radius: 50%;
-  clip-path: polygon(100% 0, 100% 100%, 0 72%, 42% 50%, 0 28%);
-  animation: pac-chomp .28s steps(2, end) infinite;
+  clip-path: polygon(100% 50%, 86% 18%, 50% 0, 14% 18%, 0 50%, 14% 82%, 50% 100%, 86% 82%, 86% 68%, 55% 50%, 86% 32%);
+  animation: pac-chomp .28s ease-in-out infinite alternate;
   will-change: transform;
 }
 .pacman::after {
-  content: ''; position: absolute; top: 6px; left: 14px;
-  width: 5px; height: 5px; border-radius: 50%; background: #111;
+  content: ''; position: absolute; top: 10px; left: 38px;
+  width: 7px; height: 7px; border-radius: 50%; background: #111;
 }
 @keyframes pac-chomp {
-  0%, 100% { clip-path: polygon(100% 0, 100% 100%, 0 72%, 42% 50%, 0 28%); }
-  50% { clip-path: polygon(100% 0, 100% 100%, 0 52%, 6% 50%, 0 48%); }
+  from { clip-path: polygon(100% 50%, 86% 18%, 50% 0, 14% 18%, 0 50%, 14% 82%, 50% 100%, 86% 82%, 86% 68%, 55% 50%, 86% 32%); }
+  to { clip-path: polygon(100% 50%, 86% 18%, 50% 0, 14% 18%, 0 50%, 14% 82%, 50% 100%, 86% 82%); }
 }
 .pac-hud {
   position: fixed; left: 12px; bottom: 12px; z-index: 251; pointer-events: none;
