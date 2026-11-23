@@ -374,7 +374,7 @@ function spawnPacman() {
   const pacman = document.createElement('div');
   pacman.className = 'pacman';
   pacman.setAttribute('aria-hidden', 'true');
-  pacman.innerHTML = '<div class="pacman-body"></div><div class="pacman-eye"></div>';
+  pacman.innerHTML = '<div class="pacman-body"></div>';
   const pacBody = pacman.querySelector('.pacman-body');
   const hud = document.createElement('div');
   hud.className = 'pac-hud';

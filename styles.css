@@ -167,15 +167,11 @@ button { cursor: pointer; }
 }
 .pacman-body {
   position: absolute; inset: 0;
-  background: url('assets/pacman-sprite.svg') 0 0 / 200% 100% no-repeat;
+  background: url('assets/pacman-sprite.svg?v=8') 0 0 / 200% 100% no-repeat;
   image-rendering: pixelated;
   animation: pac-chomp .26s infinite;
   transform-origin: center;
   will-change: transform;
-}
-.pacman-eye {
-  position: absolute; top: 15px; left: 39px;
-  width: 6px; height: 6px; background: #111;
 }
 @keyframes pac-chomp {
   0%, 49% { background-position: 0% 0; }
