@@ -1,0 +1,16 @@
+{
+  "totalAdded": 590530,
+  "totalDeleted": 84573,
+  "repos": 10,
+  "totalPublicRepos": 86,
+  "skipped": [
+    "hakergeniusz",
+    "emoxidize",
+    "baritone",
+    "freecam",
+    "pi-subagents",
+    "pi-cord"
+  ],
+  "generatedAt": "2026-11-23 12:08 UTC",
+  "method": "Sum of weekly additions in GitHub stats/code_frequency for the largest non-fork public repos. Includes all contributors to those repos."
+}
