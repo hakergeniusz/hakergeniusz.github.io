@@ -74,6 +74,57 @@ function showToast(message) {
   toastTimer = setTimeout(() => toast.classList.remove('show'), 1800);
 }
 
+/* ---------------- avatar poof easter egg ---------------- */
+const avatarZone = $('#avatarZone');
+const avatar = $('#avatar');
+
+if (avatarZone && avatar) {
+  let avatarBusy = false;
+
+  function toggleAvatar() {
+    if (avatarBusy) return;
+
+    if (avatar.classList.contains('is-gone')) {
+      avatar.classList.remove('is-gone');
+      avatar.classList.add('is-returning');
+      avatarBusy = true;
+      setTimeout(() => { avatar.classList.remove('is-returning'); avatarBusy = false; }, 400);
+      return;
+    }
+
+    avatarBusy = true;
+    avatar.classList.add('is-bursting');
+
+    for (let i = 0; i < 18; i += 1) {
+      const spark = document.createElement('span');
+      spark.className = 'spark';
+      const angle = (Math.PI * 2 * i) / 18 + Math.random() * 0.3;
+      const distance = 70 + Math.random() * 90;
+      spark.style.setProperty('--dx', `${Math.cos(angle) * distance}px`);
+      spark.style.setProperty('--dy', `${Math.sin(angle) * distance}px`);
+      spark.style.setProperty('--dr', `${Math.random() * 360}deg`);
+      if (i % 3 === 0) spark.style.background = 'var(--fg)';
+      avatarZone.append(spark);
+      setTimeout(() => spark.remove(), 750);
+    }
+
+    setTimeout(() => {
+      avatar.classList.remove('is-bursting');
+      avatar.classList.add('is-gone');
+      avatarBusy = false;
+      showToast('Poof! Click again to bring it back');
+    }, 450);
+  }
+
+  avatarZone.addEventListener('click', toggleAvatar);
+  avatarZone.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      toggleAvatar();
+    }
+  });
+}
+
 const DISCORD_PROFILE = 'https://discord.com/users/1257212645933580289';
 
 $$('[data-copy]').forEach((btn) => btn.addEventListener('click', async (event) => {
