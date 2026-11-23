@@ -337,4 +337,121 @@ async function loadLocStats() {
 }
 loadLocStats();
 
+/* ---------------- pac-man easter egg ---------------- */
+let pacActive = false;
+let pacFrame = null;
+let pacListenersReady = false;
+let pacPosition = { x: 0, y: 0 };
+const pacKeys = new Set();
+let pacEaten = [];
+
+function stopPacman() {
+  if (!pacActive) return;
+  pacActive = false;
+  cancelAnimationFrame(pacFrame);
+  $('.pacman')?.remove();
+  $('.pac-hud')?.remove();
+  pacEaten.forEach((el) => el.classList.remove('eaten'));
+  pacEaten = [];
+  pacKeys.clear();
+  showToast('Pac-Man restored everything');
+}
+
+function spawnPacman() {
+  if (pacActive) return;
+  pacActive = true;
+
+  const pacman = document.createElement('div');
+  pacman.className = 'pacman';
+  pacman.setAttribute('aria-hidden', 'true');
+  const hud = document.createElement('div');
+  hud.className = 'pac-hud';
+  document.body.append(pacman, hud);
+
+  const zone = $('#avatarZone');
+  const rect = zone?.getBoundingClientRect() || { left: 60, top: 120, width: 210, height: 210 };
+  pacPosition = {
+    x: Math.max(8, Math.min(window.innerWidth - 42, rect.left + rect.width / 2)),
+    y: Math.max(8, Math.min(window.innerHeight - 42, rect.top + rect.height / 2))
+  };
+
+  let score = 0;
+  const updateHud = () => { hud.textContent = `PAC-MAN - ${score} EATEN - WASD / ARROWS - ESC RESTORE`; };
+  updateHud();
+
+  const targets = Array.from(document.querySelectorAll('h1, h2, h3, p, li, a, button, span, img, .stat, .repo, .badge, .panel'))
+    .filter((el) => el.getClientRects().length > 0 && !el.closest('.pacman, .pac-hud, #avatarZone'));
+
+  const step = () => {
+    if (!pacActive) return;
+    const speed = 4;
+    let dx = 0;
+    let dy = 0;
+    if (pacKeys.has('arrowleft') || pacKeys.has('a')) dx -= speed;
+    if (pacKeys.has('arrowright') || pacKeys.has('d')) dx += speed;
+    if (pacKeys.has('arrowup') || pacKeys.has('w')) dy -= speed;
+    if (pacKeys.has('arrowdown') || pacKeys.has('s')) dy += speed;
+
+    pacPosition.x = Math.max(0, Math.min(window.innerWidth - 34, pacPosition.x + dx));
+    pacPosition.y = Math.max(0, Math.min(window.innerHeight - 34, pacPosition.y + dy));
+    pacman.style.transform = `translate(${pacPosition.x}px, ${pacPosition.y}px)`;
+
+    const mouth = {
+      left: pacPosition.x,
+      top: pacPosition.y,
+      right: pacPosition.x + 34,
+      bottom: pacPosition.y + 34
+    };
+    targets.forEach((el) => {
+      if (el.classList.contains('eaten')) return;
+      const r = el.getBoundingClientRect();
+      if (!r.width || !r.height) return;
+      if (mouth.right > r.left && mouth.left < r.right && mouth.bottom > r.top && mouth.top < r.bottom) {
+        el.classList.add('eaten');
+        pacEaten.push(el);
+        score += 1;
+        updateHud();
+      }
+    });
+
+    pacFrame = requestAnimationFrame(step);
+  };
+  step();
+
+  if (!pacListenersReady) {
+    pacListenersReady = true;
+    window.addEventListener('keydown', (event) => {
+      if (!pacActive) return;
+      const key = event.key.toLowerCase();
+      if (key === 'escape') { stopPacman(); return; }
+      if (event.target instanceof Element && event.target.matches('input, textarea, select')) return;
+      if (['arrowup', 'arrowdown', 'arrowleft', 'arrowright', 'w', 'a', 's', 'd'].includes(key)) {
+        event.preventDefault();
+        pacKeys.add(key);
+      }
+    });
+    window.addEventListener('keyup', (event) => pacKeys.delete(event.key.toLowerCase()));
+  }
+}
+
+const PAC_CODE = ['p', 'a', 'c', 'm', 'a', 'n'];
+let pacCodeIndex = 0;
+window.addEventListener('keydown', (event) => {
+  if (event.target instanceof Element && event.target.matches('input, textarea, select')) return;
+  const key = event.key.toLowerCase();
+  if (key === PAC_CODE[pacCodeIndex]) {
+    pacCodeIndex += 1;
+    if (pacCodeIndex === PAC_CODE.length) {
+      pacCodeIndex = 0;
+      spawnPacman();
+      showToast('PAC-MAN unlocked');
+    }
+  } else {
+    pacCodeIndex = key === PAC_CODE[0] ? 1 : 0;
+  }
+});
+
+setTimeout(spawnPacman, 67000);
+if (new URLSearchParams(location.search).has('pacman')) setTimeout(spawnPacman, 300);
+
 icons();
