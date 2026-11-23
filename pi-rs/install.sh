@@ -5,7 +5,7 @@
 #   sh install.sh                          # latest release, ~/.local/bin/pi-rs
 #   sh install.sh --prefix ~/.local/bin    # any installer flag is forwarded
 #   sh install.sh --version v0.1.1
-#   sh install.sh --force
+#   sh install.sh                          # re-run to update an existing install
 #
 # The real installer (SHA-256 verification, prefix-only writes, sh/bash/zsh
 # support) lives in the pi-rs repository; this file only forwards arguments.
