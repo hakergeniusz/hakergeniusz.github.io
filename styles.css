@@ -47,7 +47,7 @@
 }
 [data-theme='true-dark'],
 [data-theme='true-dark'] * {
-  cursor: url("assets/lantern-cursor.png") 8 8, auto !important;
+  cursor: url("assets/lantern-cursor.png") 48 48, auto !important;
 }
 
 * { box-sizing: border-box; }
