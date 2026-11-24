@@ -45,6 +45,10 @@
   --shadow: 5px 5px 0 #1f1f1f;
   --shadow-hover: 8px 8px 0 #1f1f1f;
 }
+[data-theme='true-dark'],
+[data-theme='true-dark'] * {
+  cursor: url("assets/lantern-cursor.png") 8 8, auto !important;
+}
 
 * { box-sizing: border-box; }
 body {
