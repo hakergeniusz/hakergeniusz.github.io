@@ -147,6 +147,11 @@ function showToast(message) {
 }
 
 /* ---------------- avatar poof easter egg ---------------- */
+function isMobileDevice() {
+  return window.matchMedia('(pointer: coarse)').matches || window.matchMedia('(max-width: 820px)').matches;
+}
+window.isMobileDevice = isMobileDevice;
+
 const avatarZone = $('#avatarZone');
 const avatar = $('#avatar');
 let restoreAvatar = () => {};
@@ -157,6 +162,8 @@ if (avatarZone && avatar) {
   let avatarBusy = false;
   let avatarHoldTimer = null;
   let avatarHoldFired = false;
+  let avatarClicks = [];
+  let avatarPoofDelayTimer = null;
   const RICKROLL_URL = 'https://media.tenor.com/x8v1oNUOmg4AAAPo/rickroll-roll.mp4';
 
   function playRickroll() {
@@ -164,6 +171,11 @@ if (avatarZone && avatar) {
     const flipper = $('#avatarFlipper');
     const back = $('#avatarBack');
     if (!flipper || !back) return;
+
+    if (avatar.classList.contains('is-gone') || avatar.classList.contains('is-bursting')) {
+      avatar.classList.remove('is-gone', 'is-bursting', 'is-returning');
+      avatarBusy = false;
+    }
 
     const video = document.createElement('video');
     video.className = 'rickroll-video';
@@ -183,7 +195,8 @@ if (avatarZone && avatar) {
     }, 5000);
   }
 
-  function startAvatarHold() {
+  function startAvatarHold(event) {
+    if (isMobileDevice() || (event && event.pointerType === 'touch')) return;
     if ($('#avatarFlipper')?.classList.contains('is-flipped')) return;
     clearTimeout(avatarHoldTimer);
     avatarHoldTimer = setTimeout(playRickroll, 3000);
@@ -237,12 +250,42 @@ if (avatarZone && avatar) {
     }, 450);
   }
 
+  function handleAvatarClick(event) {
+    if ($('#avatarFlipper')?.classList.contains('is-flipped')) return;
+    if (avatarHoldFired) { avatarHoldFired = false; return; }
+
+    if (isMobileDevice() || (event && event.pointerType === 'touch')) {
+      const now = performance.now();
+      avatarClicks = avatarClicks.filter((t) => now - t <= 3000);
+      avatarClicks.push(now);
+
+      if (avatarClicks.length >= 4) {
+        avatarClicks = [];
+        clearTimeout(avatarPoofDelayTimer);
+        avatarPoofDelayTimer = null;
+        clearTimeout(pacAutoTimer);
+        pacAutoTimer = null;
+        playRickroll();
+        return;
+      }
+
+      clearTimeout(avatarPoofDelayTimer);
+      avatarPoofDelayTimer = setTimeout(() => {
+        avatarPoofDelayTimer = null;
+        toggleAvatar();
+      }, 260);
+      return;
+    }
+
+    toggleAvatar();
+  }
+
   avatarZone.addEventListener('pointerdown', (event) => {
-    if (event.button === 0 || event.button === undefined) startAvatarHold();
+    if (event.button === 0 || event.button === undefined) startAvatarHold(event);
   });
   ['pointerup', 'pointerleave', 'pointercancel'].forEach((evt) => avatarZone.addEventListener(evt, cancelAvatarHold));
 
-  avatarZone.addEventListener('click', toggleAvatar);
+  avatarZone.addEventListener('click', handleAvatarClick);
   avatarZone.addEventListener('keydown', (event) => {
     if (event.key === 'Enter' || event.key === ' ') {
       event.preventDefault();
@@ -642,7 +685,6 @@ function stopPacman() {
 
   pacEaten = [];
   pacDir = { x: 0, y: 0 };
-  pacSwipeStart = null;
   document.body.style.touchAction = pacOldTouchAction;
   restoreAvatar();
   showToast('Pac-Man restored everything');
@@ -663,25 +705,28 @@ function spawnPacman() {
   const pacBody = pacman.querySelector('.pacman-body');
   const hud = document.createElement('div');
   hud.className = 'pac-hud';
-  const touchDevice = window.matchMedia('(pointer: coarse)').matches;
-  hud.innerHTML = '<div class="pac-hud-line">PAC-MAN - <span class="pac-score">0</span> EATEN - ESC RESTORE</div><div class="pac-progress"><div class="pac-progress-fill"></div></div>' +
-    (touchDevice ? '<div class="pac-dpad"><button type="button" data-dir="up" aria-label="Up">▲</button><button type="button" data-dir="left" aria-label="Left">◀</button><button type="button" data-dir="down" aria-label="Down">▼</button><button type="button" data-dir="right" aria-label="Right">▶</button></div>' : '');
+  hud.innerHTML = '<div class="pac-hud-line">PAC-MAN - <span class="pac-score">0</span> EATEN - <button type="button" class="pac-restore-btn" aria-label="Restore site">ESC RESTORE</button></div><div class="pac-progress"><div class="pac-progress-fill"></div></div>' +
+    '<div class="pac-dpad" aria-label="Pac-Man controls"><button type="button" data-dir="up" aria-label="Up">▲</button><button type="button" data-dir="left" aria-label="Left">◀</button><button type="button" data-dir="down" aria-label="Down">▼</button><button type="button" data-dir="right" aria-label="Right">▶</button></div>';
   document.body.append(pacman, hud);
   pacOldTouchAction = document.body.style.touchAction;
-  document.body.style.touchAction = touchDevice ? 'pan-y' : 'none';
+  document.body.style.touchAction = isMobileDevice() ? 'pan-y' : 'none';
 
-  if (touchDevice) {
-    const dpadDirs = { up: [0, -1], left: [-1, 0], down: [0, 1], right: [1, 0] };
-    hud.querySelectorAll('.pac-dpad button').forEach((btn) => {
-      const setDir = (event) => {
-        event.preventDefault();
-        event.stopPropagation();
-        const d = dpadDirs[btn.dataset.dir];
-        pacDir = { x: d[0], y: d[1] };
-      };
-      btn.addEventListener('pointerdown', setDir);
-    });
-  }
+  hud.querySelector('.pac-restore-btn')?.addEventListener('click', (event) => {
+    event.preventDefault();
+    stopPacman();
+  });
+
+  const dpadDirs = { up: [0, -1], left: [-1, 0], down: [0, 1], right: [1, 0] };
+  hud.querySelectorAll('.pac-dpad button').forEach((btn) => {
+    const setDir = (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      const d = dpadDirs[btn.dataset.dir];
+      if (d) pacDir = { x: d[0], y: d[1] };
+    };
+    btn.addEventListener('pointerdown', setDir);
+    btn.addEventListener('click', setDir);
+  });
   pacAngle = 180;
   pacDir = { x: 0, y: 0 };
 
@@ -870,38 +915,31 @@ function spawnPacman() {
       const key = event.key.toLowerCase();
       if (key === 'escape') { stopPacman(); return; }
       if (event.target instanceof Element && event.target.matches('input, textarea, select')) return;
-      const dirs = {
-        arrowleft: [-1, 0], a: [-1, 0],
-        arrowright: [1, 0], d: [1, 0],
-        arrowup: [0, -1], w: [0, -1],
-        arrowdown: [0, 1], s: [0, 1]
-      };
-      if (dirs[key]) {
-        event.preventDefault();
-        pacDir = { x: dirs[key][0], y: dirs[key][1] };
+
+      if (isMobileDevice()) {
+        const arrowOnlyDirs = {
+          arrowleft: [-1, 0],
+          arrowright: [1, 0],
+          arrowup: [0, -1],
+          arrowdown: [0, 1]
+        };
+        if (arrowOnlyDirs[key]) {
+          event.preventDefault();
+          pacDir = { x: arrowOnlyDirs[key][0], y: arrowOnlyDirs[key][1] };
+        }
+      } else {
+        const dirs = {
+          arrowleft: [-1, 0], a: [-1, 0],
+          arrowright: [1, 0], d: [1, 0],
+          arrowup: [0, -1], w: [0, -1],
+          arrowdown: [0, 1], s: [0, 1]
+        };
+        if (dirs[key]) {
+          event.preventDefault();
+          pacDir = { x: dirs[key][0], y: dirs[key][1] };
+        }
       }
     });
-
-    window.addEventListener('pointerdown', (event) => {
-      if (!pacActive || event.pointerType === 'mouse') return;
-      pacSwipeStart = { x: event.clientX, y: event.clientY };
-    }, { passive: true });
-
-    window.addEventListener('pointermove', (event) => {
-      if (!pacActive || event.pointerType === 'mouse' || !pacSwipeStart) return;
-      event.preventDefault();
-      const deltaX = event.clientX - pacSwipeStart.x;
-      const deltaY = event.clientY - pacSwipeStart.y;
-      const length = Math.hypot(deltaX, deltaY);
-      if (length > 6) {
-        pacDir = { x: deltaX / length, y: deltaY / length };
-        pacSwipeStart = { x: event.clientX, y: event.clientY };
-      }
-    }, { passive: false });
-
-    const endSwipe = () => { pacSwipeStart = null; };
-    window.addEventListener('pointerup', endSwipe, { passive: true });
-    window.addEventListener('pointercancel', endSwipe, { passive: true });
   }
 }
 
