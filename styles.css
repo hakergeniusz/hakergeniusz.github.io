@@ -71,6 +71,12 @@ button { cursor: pointer; }
 ::-webkit-scrollbar-corner { background: var(--card); }
 [dir='rtl'] ::-webkit-scrollbar-track { border-left: 0; border-right: 5px solid var(--border); }
 
+html.smooth-active #smoothContent {
+  position: fixed; left: 0; top: 76px; width: 100%;
+  will-change: transform;
+}
+html.smooth-active #smoothSpacer { pointer-events: none; }
+
 .has-js .reveal {
   opacity: 0; transform: translateY(26px);
   transition: opacity .55s ease, transform .55s cubic-bezier(.2, .8, .2, 1);
@@ -372,7 +378,7 @@ button { cursor: pointer; }
 .heatmap-live { display: block; width: 100%; height: auto; }
 .heatmap-live text { font-family: var(--font-mono) !important; fill: var(--fg) !important; }
 .heatmap-live .muted { fill: #555 !important; }
-.heatmap-live .card { fill: #fff !important; stroke: #111 !important; stroke-width: 3 !important; }
+.heatmap-live .card { fill: #fff !important; stroke: none !important; }
 .heatmap-live .fg { fill: #111 !important; }
 .heatmap-live .hot { fill: #8a6800 !important; }
 .heatmap-live .divider { stroke: #111 !important; stroke-width: 2 !important; }
@@ -387,7 +393,7 @@ button { cursor: pointer; }
 .heatmap-live .glow { fill: #ffd400 !important; opacity: .2 !important; }
 
 [data-theme='dark'] .heatmap-live .muted { fill: #a89170 !important; }
-[data-theme='dark'] .heatmap-live .card { fill: #171008 !important; stroke: #f3e7d3 !important; }
+[data-theme='dark'] .heatmap-live .card { fill: #171008 !important; stroke: none !important; }
 [data-theme='dark'] .heatmap-live .fg { fill: #f3e7d3 !important; }
 [data-theme='dark'] .heatmap-live .hot { fill: #f59e0b !important; }
 [data-theme='dark'] .heatmap-live .divider { stroke: #f3e7d3 !important; }
@@ -402,7 +408,7 @@ button { cursor: pointer; }
 [data-theme='dark'] .heatmap-live .glow { fill: #f59e0b !important; }
 
 [data-theme='true-dark'] .heatmap-live .muted { fill: #777 !important; }
-[data-theme='true-dark'] .heatmap-live .card { fill: #050505 !important; stroke: #c9c9c9 !important; }
+[data-theme='true-dark'] .heatmap-live .card { fill: #050505 !important; stroke: none !important; }
 [data-theme='true-dark'] .heatmap-live .fg { fill: #c9c9c9 !important; }
 [data-theme='true-dark'] .heatmap-live .hot { fill: #8a7300 !important; }
 [data-theme='true-dark'] .heatmap-live .divider { stroke: #c9c9c9 !important; }

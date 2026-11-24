@@ -13,37 +13,36 @@ root.classList.add('has-js');
 /* ---------------- inertial smooth scrolling (GSAP-style) ---------------- */
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const smoothEnabled = !reduceMotion && window.matchMedia('(pointer: fine)').matches;
+const smoothContent = $('#smoothContent');
+const smoothSpacer = $('#smoothSpacer');
 let smoothTarget = window.scrollY;
 let smoothCurrent = window.scrollY;
 let smoothRaf = null;
 
-function maxScroll() { return Math.max(0, document.documentElement.scrollHeight - window.innerHeight); }
+function sizeSmoothSpacer() {
+  if (!smoothContent || !smoothSpacer) return;
+  smoothSpacer.style.height = `${smoothContent.scrollHeight}px`;
+}
 
 function smoothLoop() {
-  smoothCurrent += (smoothTarget - smoothCurrent) * 0.09;
+  smoothCurrent += (smoothTarget - smoothCurrent) * 0.1;
   if (Math.abs(smoothTarget - smoothCurrent) < 0.5) smoothCurrent = smoothTarget;
-  window.scrollTo(0, smoothCurrent);
-  if (smoothCurrent !== smoothTarget) smoothRaf = requestAnimationFrame(smoothLoop);
-  else smoothRaf = null;
+  smoothContent.style.transform = `translate3d(0, ${-smoothCurrent}px, 0)`;
+  smoothRaf = smoothCurrent !== smoothTarget ? requestAnimationFrame(smoothLoop) : null;
 }
 
-function smoothTo(value) {
-  smoothTarget = Math.max(0, Math.min(maxScroll(), value));
-  if (smoothRaf === null) smoothRaf = requestAnimationFrame(smoothLoop);
-}
-
-if (smoothEnabled) {
-  window.addEventListener('wheel', (event) => {
-    if (event.ctrlKey || event.metaKey) return;
-    event.preventDefault();
-    const delta = event.deltaMode === 1 ? event.deltaY * 16 : event.deltaY;
-    smoothTo(smoothTarget + delta);
-  }, { passive: false });
-
+if (smoothEnabled && smoothContent && smoothSpacer) {
+  root.classList.add('smooth-active');
+  sizeSmoothSpacer();
+  window.addEventListener('resize', sizeSmoothSpacer);
+  if ('MutationObserver' in window) {
+    new MutationObserver(sizeSmoothSpacer).observe(smoothContent, { childList: true, subtree: true });
+  }
   window.addEventListener('scroll', () => {
-    if (smoothRaf !== null) return;
-    if (Math.abs(window.scrollY - smoothTarget) > 2) smoothTo(window.scrollY);
+    smoothTarget = window.scrollY;
+    if (smoothRaf === null) smoothRaf = requestAnimationFrame(smoothLoop);
   }, { passive: true });
+  smoothRaf = requestAnimationFrame(smoothLoop);
 }
 
 $$('a[href^="#"]').forEach((link) => {
@@ -53,8 +52,7 @@ $$('a[href^="#"]').forEach((link) => {
     if (!target) return;
     event.preventDefault();
     const top = Math.max(0, target.getBoundingClientRect().top + window.scrollY - 80);
-    if (smoothEnabled) smoothTo(top);
-    else window.scrollTo(0, top);
+    window.scrollTo(0, top);
     history.replaceState(null, '', `#${id}`);
   });
 });
@@ -186,6 +184,7 @@ if (avatarZone && avatar) {
   }
 
   function startAvatarHold() {
+    if ($('#avatarFlipper')?.classList.contains('is-flipped')) return;
     clearTimeout(avatarHoldTimer);
     avatarHoldTimer = setTimeout(playRickroll, 3000);
   }
@@ -204,6 +203,7 @@ if (avatarZone && avatar) {
 
   function toggleAvatar() {
     if (avatarBusy) return;
+    if ($('#avatarFlipper')?.classList.contains('is-flipped')) return;
     if (avatarHoldFired) { avatarHoldFired = false; return; }
 
     if (avatar.classList.contains('is-gone')) {
@@ -538,10 +538,10 @@ async function loadLiveHeatmap() {
     const node = document.importNode(svg, true);
     const img = $('#heatmap');
     if (img) img.replaceWith(node);
-    $('#heatmapStatus').textContent = 'Brutalist edition - live from GitHub';
+    $('#heatmapStatus').textContent = 'Live from GitHub';
   } catch (_) {
     loadTokenStats();
-    $('#heatmapStatus').textContent = 'Brutalist edition - snapshot (live unavailable)';
+    $('#heatmapStatus').textContent = 'Live unavailable - showing snapshot';
   }
 }
 loadLiveHeatmap();
