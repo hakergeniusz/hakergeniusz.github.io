@@ -10,23 +10,40 @@ const icons = () => { if (window.lucide) window.lucide.createIcons(); };
 const root = document.documentElement;
 root.classList.add('has-js');
 
-/* ---------------- smooth anchor scrolling + reveal on scroll ---------------- */
+/* ---------------- inertial smooth scrolling (GSAP-style) ---------------- */
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const smoothEnabled = !reduceMotion && window.matchMedia('(pointer: fine)').matches;
+let smoothTarget = window.scrollY;
+let smoothCurrent = window.scrollY;
+let smoothRaf = null;
 
-function smoothScrollTo(target) {
-  const top = Math.max(0, target.getBoundingClientRect().top + window.scrollY - 80);
-  const start = window.scrollY;
-  const distance = top - start;
-  if (Math.abs(distance) < 2 || reduceMotion) { window.scrollTo(0, top); return; }
-  const duration = 900;
-  const startTime = performance.now();
-  const ease = (t) => 1 - Math.pow(1 - t, 3);
-  const frame = (now) => {
-    const t = Math.min(1, (now - startTime) / duration);
-    window.scrollTo(0, start + distance * ease(t));
-    if (t < 1) requestAnimationFrame(frame);
-  };
-  requestAnimationFrame(frame);
+function maxScroll() { return Math.max(0, document.documentElement.scrollHeight - window.innerHeight); }
+
+function smoothLoop() {
+  smoothCurrent += (smoothTarget - smoothCurrent) * 0.09;
+  if (Math.abs(smoothTarget - smoothCurrent) < 0.5) smoothCurrent = smoothTarget;
+  window.scrollTo(0, smoothCurrent);
+  if (smoothCurrent !== smoothTarget) smoothRaf = requestAnimationFrame(smoothLoop);
+  else smoothRaf = null;
+}
+
+function smoothTo(value) {
+  smoothTarget = Math.max(0, Math.min(maxScroll(), value));
+  if (smoothRaf === null) smoothRaf = requestAnimationFrame(smoothLoop);
+}
+
+if (smoothEnabled) {
+  window.addEventListener('wheel', (event) => {
+    if (event.ctrlKey || event.metaKey) return;
+    event.preventDefault();
+    const delta = event.deltaMode === 1 ? event.deltaY * 16 : event.deltaY;
+    smoothTo(smoothTarget + delta);
+  }, { passive: false });
+
+  window.addEventListener('scroll', () => {
+    if (smoothRaf !== null) return;
+    if (Math.abs(window.scrollY - smoothTarget) > 2) smoothTo(window.scrollY);
+  }, { passive: true });
 }
 
 $$('a[href^="#"]').forEach((link) => {
@@ -35,7 +52,9 @@ $$('a[href^="#"]').forEach((link) => {
     const target = id && document.getElementById(id);
     if (!target) return;
     event.preventDefault();
-    smoothScrollTo(target);
+    const top = Math.max(0, target.getBoundingClientRect().top + window.scrollY - 80);
+    if (smoothEnabled) smoothTo(top);
+    else window.scrollTo(0, top);
     history.replaceState(null, '', `#${id}`);
   });
 });

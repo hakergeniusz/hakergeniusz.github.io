@@ -63,13 +63,13 @@ button { cursor: pointer; }
 :focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
 
 /* ---------- custom scrollbar + GSAP-style scroll polish ---------- */
-* { scrollbar-width: thin; scrollbar-color: var(--accent) var(--card); }
-::-webkit-scrollbar { width: 14px; height: 14px; }
-::-webkit-scrollbar-track { background: var(--card); border-left: 3px solid var(--border); }
-::-webkit-scrollbar-thumb { background: var(--accent); border: 3px solid var(--ink); }
+* { scrollbar-width: auto; scrollbar-color: var(--accent) var(--card); }
+::-webkit-scrollbar { width: 24px; height: 24px; }
+::-webkit-scrollbar-track { background: var(--card); border-left: 5px solid var(--border); }
+::-webkit-scrollbar-thumb { background: var(--accent); border: 5px solid var(--ink); }
 ::-webkit-scrollbar-thumb:hover { background: var(--fg); }
 ::-webkit-scrollbar-corner { background: var(--card); }
-[dir='rtl'] ::-webkit-scrollbar-track { border-left: 0; border-right: 3px solid var(--border); }
+[dir='rtl'] ::-webkit-scrollbar-track { border-left: 0; border-right: 5px solid var(--border); }
 
 .has-js .reveal {
   opacity: 0; transform: translateY(26px);
