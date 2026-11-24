@@ -8,6 +8,39 @@ const icons = () => { if (window.lucide) window.lucide.createIcons(); };
 
 /* ---------------- theme + true-dark easter egg ---------------- */
 const root = document.documentElement;
+root.classList.add('has-js');
+
+/* ---------------- scroll progress + reveal on scroll ---------------- */
+const scrollProgress = $('#scrollProgress');
+function updateScrollProgress() {
+  if (!scrollProgress) return;
+  const max = document.documentElement.scrollHeight - window.innerHeight;
+  const pct = max > 0 ? (window.scrollY / max) * 100 : 0;
+  scrollProgress.style.width = `${pct}%`;
+}
+window.addEventListener('scroll', updateScrollProgress, { passive: true });
+window.addEventListener('resize', updateScrollProgress);
+updateScrollProgress();
+
+const revealTargets = $$('.hero-copy > *, .stats, .section-head, .burn-frame, .about-grid > .panel');
+if ('IntersectionObserver' in window && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+  const revealObserver = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('is-visible');
+        revealObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+  revealTargets.forEach((el, i) => {
+    el.classList.add('reveal');
+    el.style.transitionDelay = `${Math.min(i % 5, 4) * 60}ms`;
+    revealObserver.observe(el);
+  });
+} else {
+  revealTargets.forEach((el) => el.classList.add('is-visible'));
+}
+
 const themeToggle = $('#themeToggle');
 const HEATMAPS = {
   light: 'assets/token-heatmap-light.svg',

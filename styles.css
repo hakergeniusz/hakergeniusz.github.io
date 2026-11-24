@@ -63,6 +63,33 @@ button { cursor: pointer; }
 ::selection { background: #111; color: #ffd400; }
 :focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
 
+/* ---------- custom scrollbar + GSAP-style scroll polish ---------- */
+html { scroll-behavior: smooth; }
+* { scrollbar-width: thin; scrollbar-color: var(--accent) var(--card); }
+::-webkit-scrollbar { width: 14px; height: 14px; }
+::-webkit-scrollbar-track { background: var(--card); border-left: 3px solid var(--border); }
+::-webkit-scrollbar-thumb { background: var(--accent); border: 3px solid var(--ink); }
+::-webkit-scrollbar-thumb:hover { background: var(--fg); }
+::-webkit-scrollbar-corner { background: var(--card); }
+[dir='rtl'] ::-webkit-scrollbar-track { border-left: 0; border-right: 3px solid var(--border); }
+
+.scroll-progress {
+  position: fixed; left: 0; top: 0; z-index: 500;
+  width: 0; height: 5px; background: var(--accent);
+  border-bottom: 2px solid var(--ink);
+  pointer-events: none;
+}
+
+.has-js .reveal {
+  opacity: 0; transform: translateY(26px);
+  transition: opacity .55s ease, transform .55s cubic-bezier(.2, .8, .2, 1);
+}
+.has-js .reveal.is-visible { opacity: 1; transform: none; }
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .has-js .reveal { opacity: 1; transform: none; transition: none; }
+}
+
 .skip-link {
   position: absolute; left: 8px; top: -60px; z-index: 200;
   background: var(--accent); color: #111; padding: 10px 14px; font-weight: 700;

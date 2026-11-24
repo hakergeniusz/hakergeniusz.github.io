@@ -4,7 +4,8 @@ A single-page, brutalist portfolio for [hakergeniusz](https://github.com/hakerge
 
 ## Features
 
-- Brutalist design with a light/dark theme toggle (remembers your choice) and a TRUE dark mode easter egg: hold the theme button for 3 seconds, click again to switch back
+- Brutalist design with a custom yellow scrollbar, smooth anchor scrolling, a scroll progress bar and GSAP-style scroll-triggered reveal animations (respects reduced motion)
+- Light/dark theme toggle (remembers your choice) and a TRUE dark mode easter egg: hold the theme button for 3 seconds, click again to switch back
 - Round avatar with a clean border, no decorative frame (click it to poof it, click again to restore; hold it for 3 seconds for a 5-second rickroll with a 180-degree flip)
 - Two more easter eggs: 10 seconds after poofing the avatar a pixel-art Pac-Man spawns at the avatar spot, keeps walking toward WASD/arrow/swipe direction (on-screen D-pad on mobile, where the page stays scrollable) and eats UI text with a chomp effect and progress bar (Escape restores everything including the avatar), or type `PACMAN` after poofing the avatar to trigger it instantly
 - Live repo list from the GitHub API with a built-in snapshot fallback
