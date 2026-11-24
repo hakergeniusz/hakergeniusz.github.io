@@ -223,7 +223,8 @@ html.smooth-active #smoothSpacer { pointer-events: none; }
 .ghostty-close { background: none; border: none; color: #a9a9a9; font-size: 18px; line-height: 1; padding: 0 4px; cursor: pointer; }
 .ghostty-close:hover { color: #ffd400; }
 .ghostty-body { position: relative; flex: 1; overflow: hidden; background: #1e1e2e; }
-.ghostty-frame { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.ghostty-frame { position: absolute; inset: 0; width: 100%; height: 100%; padding: 12px; overflow: auto; }
+.ghostty-frame .xterm { height: 100%; }
 .ghostty-loading {
   position: absolute; inset: 0; display: grid; place-items: center;
   color: #8abeb7; font-style: italic;

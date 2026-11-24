@@ -831,10 +831,9 @@ function openGhostty() {
   overlay.innerHTML = '<div class="ghostty-window" role="dialog" aria-label="Ghostty terminal">' +
     '<div class="ghostty-bar"><span class="ghostty-dot"></span><span class="ghostty-dot"></span><span class="ghostty-dot"></span>' +
     '<span class="ghostty-title">ghostty - uutils wasm</span><button class="ghostty-close" type="button" aria-label="Close terminal">x</button></div>' +
-    '<div class="ghostty-body"><div class="ghostty-loading">downloading uutils.wasm (13 MB)...</div></div></div>';
+    '<div class="ghostty-body"><div class="ghostty-loading">downloading uutils.wasm (3.2 MB zstd)...</div><div id="ghostty-term" class="ghostty-frame"></div></div></div>';
   document.body.append(overlay);
 
-  const body = overlay.querySelector('.ghostty-body');
   const onKey = (event) => { if (event.key === 'Escape') { event.stopPropagation(); close(); } };
   const close = () => {
     ghosttyOpen = false;
@@ -845,14 +844,14 @@ function openGhostty() {
   overlay.querySelector('.ghostty-close').addEventListener('click', close);
   overlay.addEventListener('click', (event) => { if (event.target === overlay) close(); });
 
-  // The iframe is created only here, so nothing downloads until the console command runs.
-  const frame = document.createElement('iframe');
-  frame.className = 'ghostty-frame';
-  frame.title = 'uutils WASM playground';
-  frame.src = 'https://uutils.org/playground/';
-  frame.referrerPolicy = 'no-referrer';
-  frame.addEventListener('load', () => { body.querySelector('.ghostty-loading')?.remove(); });
-  body.append(frame);
+  // Nothing is fetched until the console command runs.
+  loadScript('assets/uutils-terminal.js')
+    .then(() => window.initPlayground('ghostty-term'))
+    .then(() => overlay.querySelector('.ghostty-loading')?.remove())
+    .catch((err) => {
+      const loading = overlay.querySelector('.ghostty-loading');
+      if (loading) loading.textContent = `ghostty: failed to load - ${err.message}`;
+    });
 }
 
 Object.defineProperty(window, 'ghostty', {
