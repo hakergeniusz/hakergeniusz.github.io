@@ -907,6 +907,47 @@ Object.defineProperty(window, 'ghostty', {
   get() { openGhostty(); return () => openGhostty(); }
 });
 
+/* ---------------- tiles / 2048 wasm easter egg ---------------- */
+const TILES_SEQ = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'];
+let tilesSeqIdx = 0;
+let tilesOpen = false;
+
+function openTiles() {
+  if (tilesOpen) return;
+  tilesOpen = true;
+  root.classList.add('tiles-open');
+
+  const overlay = document.createElement('div');
+  overlay.className = 'tiles-overlay';
+  overlay.innerHTML = '<div class="tiles-window">' +
+    '<div class="tiles-bar"><span>2048 // TILES WASM</span><button class="tiles-close" type="button" aria-label="Close 2048">x</button></div>' +
+    '<iframe class="tiles-frame" src="assets/tiles/index.html" title="2048 game"></iframe></div>';
+  document.body.append(overlay);
+
+  const close = () => {
+    tilesOpen = false;
+    root.classList.remove('tiles-open');
+    document.removeEventListener('keydown', onKey);
+    overlay.remove();
+  };
+  const onKey = (event) => { if (event.key === 'Escape') { event.stopPropagation(); close(); } };
+  document.addEventListener('keydown', onKey);
+  overlay.querySelector('.tiles-close').addEventListener('click', close);
+  overlay.addEventListener('click', (event) => { if (event.target === overlay) close(); });
+  const frame = overlay.querySelector('.tiles-frame');
+  frame.addEventListener('load', () => frame.focus());
+}
+
+window.addEventListener('keydown', (event) => {
+  if (event.target instanceof Element && event.target.matches('input, textarea, select')) return;
+  if (event.key !== TILES_SEQ[tilesSeqIdx]) {
+    tilesSeqIdx = event.key === TILES_SEQ[0] ? 1 : 0;
+    return;
+  }
+  tilesSeqIdx += 1;
+  if (tilesSeqIdx === TILES_SEQ.length) { tilesSeqIdx = 0; openTiles(); }
+});
+
 const BAD_CODE = ['b', 'a', 'd', 'a', 'p', 'p', 'l', 'e'];
 let badCodeIndex = 0;
 window.addEventListener('keydown', (event) => {

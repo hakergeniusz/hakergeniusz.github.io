@@ -11,6 +11,7 @@ A single-page, brutalist portfolio for [hakergeniusz](https://github.com/hakerge
 - Live repo list from the GitHub API with a built-in snapshot fallback
 - Search, language filters and sorting for the repo grid; searching `play-bad-apple` or typing `BADAPPLE` anywhere plays the ASCII Bad Apple animation with audio
 - Console easter egg: type `ghostty` in the browser console to open a Ghostty-styled terminal that lazy-loads real uutils coreutils WASM (13 MB binary stored as a 3.2 MB zstd asset)
+- Konami-style easter egg: type `UP UP DOWN LEFT RIGHT` anywhere to launch the 2048 game compiled to WebAssembly
 - Token usage heatmap fetched live from GitHub on every load and restyled to match the current theme (local snapshots as offline fallback)
 - LOC contributed metric generated from real GitHub commit data
 - Links to GitHub, Discord (`@hakergeniusz`) and X/Twitter (`@hakergeniusz`)
