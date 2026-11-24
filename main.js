@@ -93,25 +93,25 @@ if (avatarZone && avatar) {
 
   function playRickroll() {
     avatarHoldFired = true;
-    avatar.classList.add('is-flipped');
+    const flipper = $('#avatarFlipper');
+    const back = $('#avatarBack');
+    if (!flipper || !back) return;
 
-    const overlay = document.createElement('div');
-    overlay.className = 'rickroll-overlay';
     const video = document.createElement('video');
     video.className = 'rickroll-video';
     video.src = RICKROLL_URL;
     video.autoplay = true;
     video.loop = true;
     video.playsInline = true;
-    video.setAttribute('aria-label', 'Rickroll');
-    overlay.append(video);
-    document.body.append(overlay);
+    video.setAttribute('aria-hidden', 'true');
+    back.replaceChildren(video);
+    flipper.classList.add('is-flipped');
     video.play().catch(() => { video.muted = true; video.play().catch(() => {}); });
 
     setTimeout(() => {
       video.pause();
-      overlay.remove();
-      avatar.classList.remove('is-flipped');
+      back.replaceChildren();
+      flipper.classList.remove('is-flipped');
     }, 5000);
   }
 
@@ -511,17 +511,20 @@ let pacLastEat = 0;
 
 const PAC_SKIP_TAGS = new Set(['HTML', 'BODY', 'HEAD', 'SCRIPT', 'STYLE', 'NOSCRIPT']);
 
+const PAC_SKIP_LAYOUT = 'main, section, header, footer, nav, .wrap, .hero, .hero-copy, .hero-art, .about-grid, .controls, .badges, .btn-row, .top-actions, .repo-grid, .stats, .section-head, .center, .footer-links';
+
 function isEdible(el) {
   if (!el || el === document.body || el === document.documentElement) return false;
   if (PAC_SKIP_TAGS.has(el.tagName)) return false;
-  if (el.closest('.pacman, .pac-hud, #avatarZone, .eat-fx, #toast, .burn-frame, .repo-grid')) return false;
+  if (el.matches(PAC_SKIP_LAYOUT)) return false;
+  if (el.closest('.pacman, .pac-hud, #avatarZone, .eat-fx, #toast')) return false;
   if (el.classList.contains('eaten') || el.classList.contains('restoring')) return false;
   const r = el.getBoundingClientRect();
   if (!r.width || !r.height) return false;
   if (r.width * r.height > 500000) return false;
-  const directText = Array.from(el.childNodes).some((node) => node.nodeType === Node.TEXT_NODE && node.textContent.trim());
+  const hasText = el.textContent && el.textContent.trim().length > 0;
   const leafMedia = /^(IMG|SVG|CANVAS|VIDEO)$/.test(el.tagName);
-  return directText || leafMedia;
+  return hasText || leafMedia;
 }
 
 function schedulePacman() {
@@ -529,7 +532,7 @@ function schedulePacman() {
   pacAutoTimer = setTimeout(() => {
     pacAutoTimer = null;
     if (!pacActive) spawnPacman();
-  }, 67000);
+  }, 10000);
 }
 
 onAvatarPoof = () => schedulePacman();
@@ -649,9 +652,19 @@ function spawnPacman() {
     pacPosition.y = Math.max(0, Math.min(window.innerHeight - PAC_SIZE, pacPosition.y + dy));
     pacman.style.transform = `translate(${pacPosition.x}px, ${pacPosition.y}px)`;
 
-    if (performance.now() - pacLastEat < 140) return;
     const cx = pacPosition.x + PAC_SIZE / 2;
     const cy = pacPosition.y + PAC_SIZE / 2;
+    const under = document.elementFromPoint(cx, cy);
+    let onYellow = false;
+    let node = under;
+    while (node && node !== document.documentElement) {
+      const rgb = getComputedStyle(node).backgroundColor.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+      if (rgb && Number(rgb[1]) > 180 && Number(rgb[2]) > 140 && Number(rgb[3]) < 100) { onYellow = true; break; }
+      node = node.parentElement;
+    }
+    pacman.classList.toggle('on-yellow', onYellow);
+
+    if (performance.now() - pacLastEat < 140) return;
     const probes = [
       [cx + pacDir.x * 24, cy + pacDir.y * 24],
       [cx, cy],
@@ -736,7 +749,21 @@ window.addEventListener('keydown', (event) => {
   }
 });
 
-schedulePacman();
+const BAD_CODE = ['b', 'a', 'd', 'a', 'p', 'p', 'l', 'e'];
+let badCodeIndex = 0;
+window.addEventListener('keydown', (event) => {
+  const key = event.key.toLowerCase();
+  if (key === BAD_CODE[badCodeIndex]) {
+    badCodeIndex += 1;
+    if (badCodeIndex === BAD_CODE.length) {
+      badCodeIndex = 0;
+      playBadApple();
+    }
+  } else {
+    badCodeIndex = key === BAD_CODE[0] ? 1 : 0;
+  }
+});
+
 if (new URLSearchParams(location.search).has('pacman')) setTimeout(spawnPacman, 300);
 
 icons();

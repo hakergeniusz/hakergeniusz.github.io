@@ -11,7 +11,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
   <script src="https://unpkg.com/lucide@latest" defer></script>
-  <link rel="stylesheet" href="styles.css?v=10" />
+  <link rel="stylesheet" href="styles.css?v=14" />
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
@@ -48,7 +48,12 @@
       </div>
       <div class="hero-art">
         <div class="avatar-zone" id="avatarZone" role="button" tabindex="0" aria-label="Avatar surprise - click to poof">
-          <img class="avatar" id="avatar" src="assets/avatar.png" alt="Avatar of hakergeniusz" width="210" height="210" />
+          <div class="avatar-flipper" id="avatarFlipper">
+            <div class="avatar-face avatar-front">
+              <img class="avatar" id="avatar" src="assets/avatar.png" alt="Avatar of hakergeniusz" width="210" height="210" />
+            </div>
+            <div class="avatar-face avatar-back" id="avatarBack"></div>
+          </div>
         </div>
       </div>
     </section>
@@ -111,7 +116,7 @@
         </div>
         <div class="panel panel-accent">
           <h3><i data-lucide="terminal"></i> Built with opencode</h3>
-          <p>My favorite coding agent. This site and most of the repos above were made by OpenCode. If the heatmap looks unhinged, that is why.</p>
+          <p>My favorite coding agent. This site and most of the repos above were made by OpenCode. If this website looks unhinged, that is why.</p>
           <a class="btn" href="https://opencode.ai" target="_blank" rel="noopener noreferrer"><i data-lucide="arrow-up-right"></i> opencode.ai</a>
         </div>
       </div>
@@ -130,6 +135,6 @@
 
   <div id="trueDarkOverlay" aria-hidden="true"></div>
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
-  <script src="main.js?v=10" defer></script>
+  <script src="main.js?v=14" defer></script>
 </body>
 </html>
