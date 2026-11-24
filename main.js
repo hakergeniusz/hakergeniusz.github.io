@@ -650,6 +650,7 @@ function stopPacman() {
 
 function spawnPacman() {
   if (pacActive) return;
+  document.querySelectorAll('.pacman, .pac-hud').forEach((el) => el.remove());
   pacActive = true;
   clearTimeout(pacAutoTimer);
   pacAutoTimer = null;
@@ -743,6 +744,7 @@ function spawnPacman() {
     const handleYes = () => {
       cleanup();
       pacWon = false;
+      document.querySelectorAll('.pacman, .pac-hud').forEach((el) => el.remove());
       const restored = pacEaten.slice();
       restored.forEach((el) => {
         el.classList.remove('eaten');
