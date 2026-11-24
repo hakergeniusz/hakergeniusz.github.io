@@ -829,19 +829,62 @@ function openGhostty() {
   const overlay = document.createElement('div');
   overlay.className = 'ghostty-overlay';
   overlay.innerHTML = '<div class="ghostty-window" role="dialog" aria-label="Ghostty terminal">' +
-    '<div class="ghostty-bar"><span class="ghostty-dot"></span><span class="ghostty-dot"></span><span class="ghostty-dot"></span>' +
+    '<div class="ghostty-bar">' +
+    '<button class="ghostty-dot" type="button" data-ghostty="close" aria-label="Close terminal"></button>' +
+    '<button class="ghostty-dot" type="button" data-ghostty="max" aria-label="Maximize terminal"></button>' +
+    '<button class="ghostty-dot" type="button" data-ghostty="min" aria-label="Minimize terminal"></button>' +
     '<span class="ghostty-title">ghostty - uutils wasm</span><button class="ghostty-close" type="button" aria-label="Close terminal">x</button></div>' +
     '<div class="ghostty-body"><div class="ghostty-loading">downloading uutils.wasm (3.2 MB zstd)...</div><div id="ghostty-term" class="ghostty-frame"></div></div></div>';
   document.body.append(overlay);
+  root.classList.add('ghostty-open');
+
+  const win = overlay.querySelector('.ghostty-window');
+  let restoreBtn = null;
+
+  const notify = (message) => {
+    const el = document.createElement('div');
+    el.className = 'ghostty-notify';
+    el.textContent = message;
+    document.body.append(el);
+    setTimeout(() => el.remove(), 1800);
+  };
 
   const onKey = (event) => { if (event.key === 'Escape') { event.stopPropagation(); close(); } };
   const close = () => {
     ghosttyOpen = false;
     document.removeEventListener('keydown', onKey);
+    root.classList.remove('ghostty-open');
+    restoreBtn?.remove();
     overlay.remove();
   };
+  const maximize = () => {
+    win.classList.toggle('is-maximized');
+    window.dispatchEvent(new Event('resize'));
+  };
+  const minimize = () => {
+    win.classList.add('is-minimized');
+    if (!restoreBtn) {
+      restoreBtn = document.createElement('button');
+      restoreBtn.className = 'ghostty-restore';
+      restoreBtn.type = 'button';
+      restoreBtn.textContent = 'ghostty - restore';
+      restoreBtn.addEventListener('click', () => {
+        win.classList.remove('is-minimized');
+        restoreBtn.remove();
+        restoreBtn = null;
+        window.dispatchEvent(new Event('resize'));
+        document.querySelector('#ghostty-term .xterm-helper-textarea')?.focus();
+      });
+      document.body.append(restoreBtn);
+    }
+    notify('Minimized!');
+  };
+
   document.addEventListener('keydown', onKey);
   overlay.querySelector('.ghostty-close').addEventListener('click', close);
+  overlay.querySelectorAll('[data-ghostty]').forEach((btn) => {
+    btn.addEventListener('click', { close, max: maximize, min: minimize }[btn.dataset.ghostty]);
+  });
   overlay.addEventListener('click', (event) => { if (event.target === overlay) close(); });
 
   // Nothing is fetched until the console command runs.

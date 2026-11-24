@@ -199,6 +199,7 @@ html.smooth-active #smoothSpacer { pointer-events: none; }
 }
 
 /* ---------- ghostty console easter egg ---------- */
+html.ghostty-open, html.ghostty-open body { overflow: hidden; }
 .ghostty-overlay {
   position: fixed; inset: 0; z-index: 410; background: rgba(0, 0, 0, .7);
   display: grid; place-items: center; padding: 24px;
@@ -216,18 +217,36 @@ html.smooth-active #smoothSpacer { pointer-events: none; }
   padding: 8px 12px; background: #232020; border-bottom: 2px solid #3a3535;
   user-select: none;
 }
-.ghostty-dot { width: 12px; height: 12px; border-radius: 50%; background: #ff5f56; }
+.ghostty-dot { width: 12px; height: 12px; border-radius: 50%; background: #ff5f56; border: 0; padding: 0; cursor: pointer; }
 .ghostty-dot:nth-child(2) { background: #ffbd2e; }
 .ghostty-dot:nth-child(3) { background: #27c93f; }
+.ghostty-dot:hover { filter: brightness(1.25); }
 .ghostty-title { flex: 1; text-align: center; color: #a9a9a9; font-size: 11px; letter-spacing: .08em; }
 .ghostty-close { background: none; border: none; color: #a9a9a9; font-size: 18px; line-height: 1; padding: 0 4px; cursor: pointer; }
 .ghostty-close:hover { color: #ffd400; }
 .ghostty-body { position: relative; flex: 1; overflow: hidden; background: #1e1e2e; }
-.ghostty-frame { position: absolute; inset: 0; width: 100%; height: 100%; padding: 12px; overflow: auto; }
+.ghostty-frame { position: absolute; inset: 0; width: 100%; height: 100%; padding: 12px; overflow: hidden; }
 .ghostty-frame .xterm { height: 100%; }
+.ghostty-frame .xterm-viewport { scrollbar-width: none; -ms-overflow-style: none; }
+.ghostty-frame .xterm-viewport::-webkit-scrollbar { width: 0; height: 0; display: none; }
+.ghostty-frame .xterm-scroll-area { display: none; }
 .ghostty-loading {
   position: absolute; inset: 0; display: grid; place-items: center;
   color: #8abeb7; font-style: italic;
+}
+.ghostty-window.is-maximized { width: calc(100vw - 48px); height: calc(100vh - 48px); }
+.ghostty-window.is-minimized { display: none; }
+.ghostty-restore {
+  position: fixed; right: 24px; bottom: 24px; z-index: 412;
+  background: #181616; color: #ffd400; border: 3px solid #ffd400;
+  padding: 10px 14px; font: 700 11px/1 var(--font-mono);
+  cursor: pointer; box-shadow: 4px 4px 0 #000;
+}
+.ghostty-notify {
+  position: fixed; left: 50%; top: 24px; transform: translateX(-50%); z-index: 413;
+  background: #181616; color: #ffd400; border: 3px solid #ffd400;
+  padding: 10px 16px; font: 700 12px/1 var(--font-mono);
+  animation: rick-fade .2s ease-out;
 }
 .spark {
   position: absolute; left: 50%; top: 50%; width: 10px; height: 10px; margin: -5px;
