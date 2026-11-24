@@ -10,20 +10,38 @@ const icons = () => { if (window.lucide) window.lucide.createIcons(); };
 const root = document.documentElement;
 root.classList.add('has-js');
 
-/* ---------------- scroll progress + reveal on scroll ---------------- */
-const scrollProgress = $('#scrollProgress');
-function updateScrollProgress() {
-  if (!scrollProgress) return;
-  const max = document.documentElement.scrollHeight - window.innerHeight;
-  const pct = max > 0 ? (window.scrollY / max) * 100 : 0;
-  scrollProgress.style.width = `${pct}%`;
+/* ---------------- smooth anchor scrolling + reveal on scroll ---------------- */
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+function smoothScrollTo(target) {
+  const top = Math.max(0, target.getBoundingClientRect().top + window.scrollY - 80);
+  const start = window.scrollY;
+  const distance = top - start;
+  if (Math.abs(distance) < 2 || reduceMotion) { window.scrollTo(0, top); return; }
+  const duration = 900;
+  const startTime = performance.now();
+  const ease = (t) => 1 - Math.pow(1 - t, 3);
+  const frame = (now) => {
+    const t = Math.min(1, (now - startTime) / duration);
+    window.scrollTo(0, start + distance * ease(t));
+    if (t < 1) requestAnimationFrame(frame);
+  };
+  requestAnimationFrame(frame);
 }
-window.addEventListener('scroll', updateScrollProgress, { passive: true });
-window.addEventListener('resize', updateScrollProgress);
-updateScrollProgress();
+
+$$('a[href^="#"]').forEach((link) => {
+  link.addEventListener('click', (event) => {
+    const id = link.getAttribute('href').slice(1);
+    const target = id && document.getElementById(id);
+    if (!target) return;
+    event.preventDefault();
+    smoothScrollTo(target);
+    history.replaceState(null, '', `#${id}`);
+  });
+});
 
 const revealTargets = $$('.hero-copy > *, .stats, .section-head, .burn-frame, .about-grid > .panel');
-if ('IntersectionObserver' in window && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+if ('IntersectionObserver' in window && !reduceMotion) {
   const revealObserver = new IntersectionObserver((entries) => {
     entries.forEach((entry) => {
       if (entry.isIntersecting) {
