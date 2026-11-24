@@ -141,6 +141,31 @@ button { cursor: pointer; }
 .avatar.is-bursting { animation: avatar-burst .45s ease-in forwards; }
 .avatar.is-gone { opacity: 0; visibility: hidden; }
 .avatar.is-returning { animation: avatar-return .4s ease-out; }
+.avatar.is-flipped, .avatar-zone:hover .avatar.is-flipped { transform: rotateY(180deg); transition: transform .5s ease; }
+.rickroll-overlay {
+  position: fixed; inset: 0; z-index: 400; background: #000;
+  display: grid; place-items: center; padding: 24px;
+  animation: rick-fade .2s ease-out;
+}
+.rickroll-video { max-width: 100%; max-height: 100%; border: 4px solid #ffd400; box-shadow: 0 0 40px #ffd40055; }
+@keyframes rick-fade { from { opacity: 0; } to { opacity: 1; } }
+
+.bad-apple-overlay {
+  position: fixed; inset: 0; z-index: 401; background: #000;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 12px; padding: 16px; cursor: pointer;
+  animation: rick-fade .2s ease-out;
+}
+.bad-apple-hint {
+  color: #ffd400; font: 700 11px/1 var(--font-mono);
+  text-transform: uppercase; letter-spacing: .1em;
+}
+.bad-apple-screen {
+  margin: 0; color: #fff; background: #000;
+  font-family: 'JetBrains Mono', 'Courier New', monospace;
+  font-size: min(1.5vw, 2.4vh); line-height: 1; letter-spacing: 0;
+  white-space: pre; overflow: hidden;
+}
 .spark {
   position: absolute; left: 50%; top: 50%; width: 10px; height: 10px; margin: -5px;
   background: var(--accent); border: 2px solid var(--border); border-radius: 2px;
@@ -192,6 +217,20 @@ button { cursor: pointer; }
   height: 100%; width: 0; background: #ffd400;
   transition: width .18s ease-out;
 }
+.pac-dpad {
+  display: grid; grid-template-columns: repeat(3, 34px); grid-template-rows: repeat(2, 34px);
+  gap: 3px; margin-top: 10px; pointer-events: auto;
+}
+.pac-dpad button {
+  padding: 0; background: var(--card); color: var(--fg);
+  border: 2px solid var(--border); font: 700 13px/1 var(--font-mono);
+  touch-action: none; cursor: pointer;
+}
+.pac-dpad button:active { background: #ffd400; color: #111; }
+.pac-dpad button[data-dir='up'] { grid-column: 2; grid-row: 1; }
+.pac-dpad button[data-dir='left'] { grid-column: 1; grid-row: 2; }
+.pac-dpad button[data-dir='down'] { grid-column: 2; grid-row: 2; }
+.pac-dpad button[data-dir='right'] { grid-column: 3; grid-row: 2; }
 .eat-fx {
   position: fixed; z-index: 252; pointer-events: none;
   font: 700 15px/1 var(--font-mono); color: #ffd400;
@@ -292,7 +331,7 @@ button { cursor: pointer; }
 
 /* ---------- heatmap ---------- */
 .burn-frame { margin: 0; padding: 16px; background: var(--card); border: 3px solid var(--border); box-shadow: var(--shadow); }
-.burn-frame img { display: block; width: 100%; height: auto; }
+.burn-frame img, .burn-frame svg { display: block; width: 100%; height: auto; }
 .burn-frame figcaption {
   display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px;
   margin-top: 14px; padding-top: 12px; border-top: 3px solid var(--border);
@@ -300,6 +339,54 @@ button { cursor: pointer; }
 }
 .burn-frame figcaption span:first-child { color: #8a6800; }
 [data-theme='dark'] .burn-frame figcaption span:first-child, [data-theme='true-dark'] .burn-frame figcaption span:first-child { color: var(--accent); }
+
+/* Live SVG gets restyled in-place to match the brutalist theme. */
+.heatmap-live { display: block; width: 100%; height: auto; }
+.heatmap-live text { font-family: var(--font-mono) !important; fill: var(--fg) !important; }
+.heatmap-live .muted { fill: #555 !important; }
+.heatmap-live .card { fill: #fff !important; stroke: #111 !important; stroke-width: 3 !important; }
+.heatmap-live .fg { fill: #111 !important; }
+.heatmap-live .hot { fill: #8a6800 !important; }
+.heatmap-live .divider { stroke: #111 !important; stroke-width: 2 !important; }
+.heatmap-live .nodata { fill: #f2efe6 !important; stroke: #111 !important; stroke-width: 1 !important; }
+.heatmap-live .c0 { fill: #f2efe6 !important; }
+.heatmap-live .c1 { fill: #fff4b8 !important; }
+.heatmap-live .c2 { fill: #ffe066 !important; }
+.heatmap-live .c3 { fill: #ffd400 !important; }
+.heatmap-live .c4 { fill: #a67c00 !important; }
+.heatmap-live .c5 { fill: #111 !important; }
+.heatmap-live .record { stroke: #111 !important; stroke-width: 3 !important; }
+.heatmap-live .glow { fill: #ffd400 !important; opacity: .2 !important; }
+
+[data-theme='dark'] .heatmap-live .muted { fill: #a89170 !important; }
+[data-theme='dark'] .heatmap-live .card { fill: #171008 !important; stroke: #f3e7d3 !important; }
+[data-theme='dark'] .heatmap-live .fg { fill: #f3e7d3 !important; }
+[data-theme='dark'] .heatmap-live .hot { fill: #f59e0b !important; }
+[data-theme='dark'] .heatmap-live .divider { stroke: #f3e7d3 !important; }
+[data-theme='dark'] .heatmap-live .nodata { fill: #1a1206 !important; stroke: #4a3410 !important; }
+[data-theme='dark'] .heatmap-live .c0 { fill: #1a1206 !important; }
+[data-theme='dark'] .heatmap-live .c1 { fill: #2a1a05 !important; }
+[data-theme='dark'] .heatmap-live .c2 { fill: #7a4a00 !important; }
+[data-theme='dark'] .heatmap-live .c3 { fill: #b45309 !important; }
+[data-theme='dark'] .heatmap-live .c4 { fill: #f59e0b !important; }
+[data-theme='dark'] .heatmap-live .c5 { fill: #f3e7d3 !important; }
+[data-theme='dark'] .heatmap-live .record { stroke: #f3e7d3 !important; }
+[data-theme='dark'] .heatmap-live .glow { fill: #f59e0b !important; }
+
+[data-theme='true-dark'] .heatmap-live .muted { fill: #777 !important; }
+[data-theme='true-dark'] .heatmap-live .card { fill: #050505 !important; stroke: #c9c9c9 !important; }
+[data-theme='true-dark'] .heatmap-live .fg { fill: #c9c9c9 !important; }
+[data-theme='true-dark'] .heatmap-live .hot { fill: #8a7300 !important; }
+[data-theme='true-dark'] .heatmap-live .divider { stroke: #c9c9c9 !important; }
+[data-theme='true-dark'] .heatmap-live .nodata { fill: #0e0e0e !important; stroke: #2a2a2a !important; }
+[data-theme='true-dark'] .heatmap-live .c0 { fill: #0e0e0e !important; }
+[data-theme='true-dark'] .heatmap-live .c1 { fill: #171307 !important; }
+[data-theme='true-dark'] .heatmap-live .c2 { fill: #3d3200 !important; }
+[data-theme='true-dark'] .heatmap-live .c3 { fill: #665100 !important; }
+[data-theme='true-dark'] .heatmap-live .c4 { fill: #8a7300 !important; }
+[data-theme='true-dark'] .heatmap-live .c5 { fill: #c9c9c9 !important; }
+[data-theme='true-dark'] .heatmap-live .record { stroke: #c9c9c9 !important; }
+[data-theme='true-dark'] .heatmap-live .glow { fill: #8a7300 !important; }
 
 /* ---------- about ---------- */
 .about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }

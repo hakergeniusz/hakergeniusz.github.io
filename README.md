@@ -5,11 +5,11 @@ A single-page, brutalist portfolio for [hakergeniusz](https://github.com/hakerge
 ## Features
 
 - Brutalist design with a light/dark theme toggle (remembers your choice) and a TRUE dark mode easter egg: hold the theme button for 3 seconds, click again to switch back
-- Round avatar with a clean border, no decorative frame (click it to poof it, click again to restore)
-- Two more easter eggs: 67 seconds after load (or after poofing the avatar) a pixel-art Pac-Man spawns at the avatar spot, keeps walking toward WASD/arrow/swipe direction and eats UI text with a chomp effect and progress bar (Escape restores everything including the avatar), or type `PACMAN` after poofing the avatar to trigger it instantly
+- Round avatar with a clean border, no decorative frame (click it to poof it, click again to restore; hold it for 3 seconds for a 5-second rickroll with a 180-degree flip)
+- Two more easter eggs: 67 seconds after load (or after poofing the avatar) a pixel-art Pac-Man spawns at the avatar spot, keeps walking toward WASD/arrow/swipe direction (on-screen D-pad on mobile, where the page stays scrollable) and eats UI text with a chomp effect and progress bar (Escape restores everything including the avatar), or type `PACMAN` after poofing the avatar to trigger it instantly
 - Live repo list from the GitHub API with a built-in snapshot fallback
-- Search, language filters and sorting for the repo grid
-- Token usage heatmap restyled from the live SVG data file, with matching light/dark variants
+- Search, language filters and sorting for the repo grid; searching `play-bad-apple` plays the ASCII Bad Apple animation with audio
+- Token usage heatmap fetched live from GitHub on every load and restyled to match the current theme (local snapshots as offline fallback)
 - LOC contributed metric generated from real GitHub commit data
 - Links to GitHub, Discord (`@hakergeniusz`) and X/Twitter (`@hakergeniusz`)
 - Click-to-copy handles, MIT license

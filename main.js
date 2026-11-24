@@ -14,11 +14,15 @@ const HEATMAPS = {
   dark: 'assets/token-heatmap-dark.svg',
   'true-dark': 'assets/token-heatmap-true-dark.svg'
 };
+const LIVE_HEATMAP_URL = 'https://raw.githubusercontent.com/hakergeniusz/hakergeniusz/data/token-heatmap.svg';
+const HEATMAP_LABEL = 'PI+CLAUDE+ZCODE+QWEN+GEMINI+OPENCODE+CODEX // TOKEN BURN';
+const HEATMAP_LABEL_BRUTAL = 'PI+CLAUDE+ZCODE+OPENCODE // TOKEN BURN';
 
 function setTheme(theme) {
   root.dataset.theme = theme;
   localStorage.setItem('hgz-theme', theme);
-  $('#heatmap').src = HEATMAPS[theme] || HEATMAPS.light;
+  const heatmap = $('#heatmap');
+  if (heatmap && heatmap.tagName.toLowerCase() === 'img') heatmap.src = HEATMAPS[theme] || HEATMAPS.light;
   themeToggle?.setAttribute('aria-label', theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode');
   if (themeToggle) themeToggle.innerHTML = `<i data-lucide="${theme === 'light' ? 'moon' : 'sun'}"></i>`;
   icons();
@@ -83,6 +87,42 @@ let onAvatarRestore = () => {};
 
 if (avatarZone && avatar) {
   let avatarBusy = false;
+  let avatarHoldTimer = null;
+  let avatarHoldFired = false;
+  const RICKROLL_URL = 'https://media.tenor.com/x8v1oNUOmg4AAAPo/rickroll-roll.mp4';
+
+  function playRickroll() {
+    avatarHoldFired = true;
+    avatar.classList.add('is-flipped');
+
+    const overlay = document.createElement('div');
+    overlay.className = 'rickroll-overlay';
+    const video = document.createElement('video');
+    video.className = 'rickroll-video';
+    video.src = RICKROLL_URL;
+    video.autoplay = true;
+    video.loop = true;
+    video.playsInline = true;
+    video.setAttribute('aria-label', 'Rickroll');
+    overlay.append(video);
+    document.body.append(overlay);
+    video.play().catch(() => { video.muted = true; video.play().catch(() => {}); });
+
+    setTimeout(() => {
+      video.pause();
+      overlay.remove();
+      avatar.classList.remove('is-flipped');
+    }, 5000);
+  }
+
+  function startAvatarHold() {
+    clearTimeout(avatarHoldTimer);
+    avatarHoldTimer = setTimeout(playRickroll, 3000);
+  }
+  function cancelAvatarHold() {
+    clearTimeout(avatarHoldTimer);
+    avatarHoldTimer = null;
+  }
 
   restoreAvatar = () => {
     if (!avatar.classList.contains('is-gone')) return;
@@ -94,6 +134,7 @@ if (avatarZone && avatar) {
 
   function toggleAvatar() {
     if (avatarBusy) return;
+    if (avatarHoldFired) { avatarHoldFired = false; return; }
 
     if (avatar.classList.contains('is-gone')) {
       onAvatarRestore();
@@ -125,6 +166,11 @@ if (avatarZone && avatar) {
       showToast('Poof! Click again to bring it back');
     }, 450);
   }
+
+  avatarZone.addEventListener('pointerdown', (event) => {
+    if (event.button === 0 || event.button === undefined) startAvatarHold();
+  });
+  ['pointerup', 'pointerleave', 'pointercancel'].forEach((evt) => avatarZone.addEventListener(evt, cancelAvatarHold));
 
   avatarZone.addEventListener('click', toggleAvatar);
   avatarZone.addEventListener('keydown', (event) => {
@@ -297,7 +343,77 @@ async function loadLiveRepos() {
   renderRepos();
 }
 
-$('#repoSearch').addEventListener('input', (e) => { state.search = e.target.value.toLowerCase(); renderRepos(); });
+/* ---------------- bad apple easter egg (lazy loaded) ---------------- */
+const BAD_FRAMES_URL = 'assets/bad-apple-frames.zst';
+const BAD_AUDIO_URL = 'assets/bad-apple-audio.mp3';
+const FZSTD_URL = 'assets/fzstd.js';
+let badApplePlaying = false;
+
+function loadScript(src) {
+  return new Promise((resolve, reject) => {
+    if (window.fzstd) return resolve();
+    const s = document.createElement('script');
+    s.src = src;
+    s.onload = resolve;
+    s.onerror = reject;
+    document.head.append(s);
+  });
+}
+
+async function playBadApple() {
+  if (badApplePlaying) return;
+  badApplePlaying = true;
+  showToast('BAD APPLE!!');
+
+  const overlay = document.createElement('div');
+  overlay.className = 'bad-apple-overlay';
+  overlay.innerHTML = '<div class="bad-apple-hint">BAD APPLE!! - ESC OR CLICK TO STOP</div><pre class="bad-apple-screen">LOADING...</pre>';
+  document.body.append(overlay);
+  const screen = overlay.querySelector('.bad-apple-screen');
+
+  let raf = null;
+  let audio = null;
+  const onKey = (event) => { if (event.key === 'Escape') cleanup(); };
+  function cleanup() {
+    badApplePlaying = false;
+    if (raf) cancelAnimationFrame(raf);
+    if (audio) { audio.pause(); audio.remove(); }
+    overlay.remove();
+    window.removeEventListener('keydown', onKey);
+  }
+  window.addEventListener('keydown', onKey);
+  overlay.addEventListener('click', cleanup);
+
+  try {
+    await loadScript(FZSTD_URL);
+    const res = await fetch(BAD_FRAMES_URL);
+    if (!res.ok) throw new Error(String(res.status));
+    const raw = window.fzstd.decompress(new Uint8Array(await res.arrayBuffer()));
+    const frames = new TextDecoder().decode(raw).split('\n===FRAME===\n');
+
+    audio = new Audio(BAD_AUDIO_URL);
+    audio.play().catch(() => {});
+
+    const start = performance.now();
+    const tick = () => {
+      if (!badApplePlaying) return;
+      const index = Math.floor((performance.now() - start) / (1000 / 30));
+      if (index >= frames.length) { cleanup(); return; }
+      screen.textContent = frames[index];
+      raf = requestAnimationFrame(tick);
+    };
+    tick();
+  } catch (err) {
+    screen.textContent = `FAILED TO LOAD BAD APPLE\n${err.message}`;
+    setTimeout(cleanup, 3000);
+  }
+}
+
+$('#repoSearch').addEventListener('input', (e) => {
+  state.search = e.target.value.toLowerCase();
+  renderRepos();
+  if (state.search.replace(/\s+/g, '-') === 'play-bad-apple') playBadApple();
+});
 $('#repoSort').addEventListener('change', (e) => { state.sort = e.target.value; renderRepos(); });
 $$('.filter').forEach((btn) => btn.addEventListener('click', () => {
   $$('.filter').forEach((b) => b.classList.remove('active'));
@@ -309,27 +425,56 @@ $('#showMore').addEventListener('click', () => { state.showAll = !state.showAll;
 
 loadLiveRepos();
 
-/* ---------------- token stats from the displayed SVG graph ---------------- */
+/* ---------------- live token heatmap pulled from GitHub ---------------- */
+function applyHeatmapStats(text) {
+  const title = text.match(/([\d.]+[BMT]) tokens over (\d+) days/i);
+  if (title) {
+    $('#statTokens').textContent = title[1];
+    $('#burnTotals').textContent = `${title[1]} total - ${title[2]} active days`;
+    $('#statStreak')?.setAttribute('title', `${title[2]} active days tracked`);
+  }
+  const requests = text.match(/([\d,]+)\s+requests\s*·\s*tracking since/i);
+  if (requests) $('#statRequests').textContent = requests[1];
+}
+
 async function loadTokenStats() {
   const file = HEATMAPS[root.dataset.theme] || HEATMAPS.light;
   try {
     const res = await fetch(file);
     if (!res.ok) throw new Error(String(res.status));
-    const text = await res.text();
-    const title = text.match(/([\d.]+[BMT]) tokens over (\d+) days/i);
-    if (title) {
-      $('#statTokens').textContent = title[1];
-      $('#burnTotals').textContent = `${title[1]} total - ${title[2]} active days`;
-      $('#statStreak')?.setAttribute('title', `${title[2]} active days tracked`);
-    }
-    const requests = text.match(/([\d,]+)\s+requests\s*·\s*tracking since/i);
-    if (requests) $('#statRequests').textContent = requests[1];
-    $('#heatmapStatus').textContent = 'Brutalist edition - live data from GitHub';
+    applyHeatmapStats(await res.text());
   } catch (_) {
-    // Snapshot values stay in place when offline or blocked by CORS.
+    // Snapshot values stay in place when offline.
   }
 }
-loadTokenStats();
+
+async function loadLiveHeatmap() {
+  try {
+    const res = await fetch(LIVE_HEATMAP_URL, { cache: 'no-store' });
+    if (!res.ok) throw new Error(String(res.status));
+    let text = await res.text();
+    applyHeatmapStats(text);
+
+    text = text.replace(/<style>[\s\S]*?<\/style>/, '');
+    text = text.replace(HEATMAP_LABEL, HEATMAP_LABEL_BRUTAL);
+    const doc = new DOMParser().parseFromString(text, 'image/svg+xml');
+    if (doc.querySelector('parsererror')) throw new Error('bad svg');
+    const svg = doc.documentElement;
+    svg.setAttribute('id', 'heatmap');
+    svg.setAttribute('class', 'heatmap-live');
+    svg.removeAttribute('width');
+    svg.removeAttribute('height');
+    svg.setAttribute('width', '100%');
+    const node = document.importNode(svg, true);
+    const img = $('#heatmap');
+    if (img) img.replaceWith(node);
+    $('#heatmapStatus').textContent = 'Brutalist edition - live from GitHub';
+  } catch (_) {
+    loadTokenStats();
+    $('#heatmapStatus').textContent = 'Brutalist edition - snapshot (live unavailable)';
+  }
+}
+loadLiveHeatmap();
 
 /* ---------------- LOC contributed (generated by scripts/count-loc.py) ---------------- */
 async function loadLocStats() {
@@ -369,11 +514,14 @@ const PAC_SKIP_TAGS = new Set(['HTML', 'BODY', 'HEAD', 'SCRIPT', 'STYLE', 'NOSCR
 function isEdible(el) {
   if (!el || el === document.body || el === document.documentElement) return false;
   if (PAC_SKIP_TAGS.has(el.tagName)) return false;
-  if (el.closest('.pacman, .pac-hud, #avatarZone, .eat-fx, #toast')) return false;
+  if (el.closest('.pacman, .pac-hud, #avatarZone, .eat-fx, #toast, .burn-frame, .repo-grid')) return false;
   if (el.classList.contains('eaten') || el.classList.contains('restoring')) return false;
   const r = el.getBoundingClientRect();
   if (!r.width || !r.height) return false;
-  return (el.textContent && el.textContent.trim().length > 0) || /^(IMG|SVG|CANVAS|VIDEO)$/.test(el.tagName);
+  if (r.width * r.height > 500000) return false;
+  const directText = Array.from(el.childNodes).some((node) => node.nodeType === Node.TEXT_NODE && node.textContent.trim());
+  const leafMedia = /^(IMG|SVG|CANVAS|VIDEO)$/.test(el.tagName);
+  return directText || leafMedia;
 }
 
 function schedulePacman() {
@@ -426,10 +574,25 @@ function spawnPacman() {
   const pacBody = pacman.querySelector('.pacman-body');
   const hud = document.createElement('div');
   hud.className = 'pac-hud';
-  hud.innerHTML = '<div class="pac-hud-line">PAC-MAN - <span class="pac-score">0</span> EATEN - ESC RESTORE</div><div class="pac-progress"><div class="pac-progress-fill"></div></div>';
+  const touchDevice = window.matchMedia('(pointer: coarse)').matches;
+  hud.innerHTML = '<div class="pac-hud-line">PAC-MAN - <span class="pac-score">0</span> EATEN - ESC RESTORE</div><div class="pac-progress"><div class="pac-progress-fill"></div></div>' +
+    (touchDevice ? '<div class="pac-dpad"><button type="button" data-dir="up" aria-label="Up">▲</button><button type="button" data-dir="left" aria-label="Left">◀</button><button type="button" data-dir="down" aria-label="Down">▼</button><button type="button" data-dir="right" aria-label="Right">▶</button></div>' : '');
   document.body.append(pacman, hud);
   pacOldTouchAction = document.body.style.touchAction;
-  document.body.style.touchAction = 'none';
+  document.body.style.touchAction = touchDevice ? 'pan-y' : 'none';
+
+  if (touchDevice) {
+    const dpadDirs = { up: [0, -1], left: [-1, 0], down: [0, 1], right: [1, 0] };
+    hud.querySelectorAll('.pac-dpad button').forEach((btn) => {
+      const setDir = (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        const d = dpadDirs[btn.dataset.dir];
+        pacDir = { x: d[0], y: d[1] };
+      };
+      btn.addEventListener('pointerdown', setDir);
+    });
+  }
   pacAngle = 180;
   pacDir = { x: 0, y: 0 };
 
@@ -486,7 +649,7 @@ function spawnPacman() {
     pacPosition.y = Math.max(0, Math.min(window.innerHeight - PAC_SIZE, pacPosition.y + dy));
     pacman.style.transform = `translate(${pacPosition.x}px, ${pacPosition.y}px)`;
 
-    if (performance.now() - pacLastEat < 70) return;
+    if (performance.now() - pacLastEat < 140) return;
     const cx = pacPosition.x + PAC_SIZE / 2;
     const cy = pacPosition.y + PAC_SIZE / 2;
     const probes = [
