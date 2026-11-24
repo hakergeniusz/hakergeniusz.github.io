@@ -197,6 +197,37 @@ html.smooth-active #smoothSpacer { pointer-events: none; }
   font-size: min(1.5vw, 2.4vh); line-height: 1; letter-spacing: 0;
   white-space: pre; overflow: hidden;
 }
+
+/* ---------- ghostty console easter egg ---------- */
+.ghostty-overlay {
+  position: fixed; inset: 0; z-index: 410; background: rgba(0, 0, 0, .7);
+  display: grid; place-items: center; padding: 24px;
+  animation: rick-fade .2s ease-out;
+}
+.ghostty-window {
+  width: min(920px, 100%); height: min(580px, 100%);
+  display: flex; flex-direction: column; overflow: hidden;
+  background: #181616; color: #c5c8c6;
+  border: 3px solid #ffd400; box-shadow: 8px 8px 0 #000;
+  font-family: var(--font-mono); font-size: 13px; line-height: 1.5;
+}
+.ghostty-bar {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 12px; background: #232020; border-bottom: 2px solid #3a3535;
+  user-select: none;
+}
+.ghostty-dot { width: 12px; height: 12px; border-radius: 50%; background: #ff5f56; }
+.ghostty-dot:nth-child(2) { background: #ffbd2e; }
+.ghostty-dot:nth-child(3) { background: #27c93f; }
+.ghostty-title { flex: 1; text-align: center; color: #a9a9a9; font-size: 11px; letter-spacing: .08em; }
+.ghostty-close { background: none; border: none; color: #a9a9a9; font-size: 18px; line-height: 1; padding: 0 4px; cursor: pointer; }
+.ghostty-close:hover { color: #ffd400; }
+.ghostty-body { position: relative; flex: 1; overflow: hidden; background: #1e1e2e; }
+.ghostty-frame { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.ghostty-loading {
+  position: absolute; inset: 0; display: grid; place-items: center;
+  color: #8abeb7; font-style: italic;
+}
 .spark {
   position: absolute; left: 50%; top: 50%; width: 10px; height: 10px; margin: -5px;
   background: var(--accent); border: 2px solid var(--border); border-radius: 2px;

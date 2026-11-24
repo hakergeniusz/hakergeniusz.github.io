@@ -819,9 +819,51 @@ window.addEventListener('keydown', (event) => {
   }
 });
 
+/* ---------------- ghostty console easter egg (lazy uutils WASM) ---------------- */
+let ghosttyOpen = false;
+
+function openGhostty() {
+  if (ghosttyOpen) return;
+  ghosttyOpen = true;
+
+  const overlay = document.createElement('div');
+  overlay.className = 'ghostty-overlay';
+  overlay.innerHTML = '<div class="ghostty-window" role="dialog" aria-label="Ghostty terminal">' +
+    '<div class="ghostty-bar"><span class="ghostty-dot"></span><span class="ghostty-dot"></span><span class="ghostty-dot"></span>' +
+    '<span class="ghostty-title">ghostty - uutils wasm</span><button class="ghostty-close" type="button" aria-label="Close terminal">x</button></div>' +
+    '<div class="ghostty-body"><div class="ghostty-loading">downloading uutils.wasm (13 MB)...</div></div></div>';
+  document.body.append(overlay);
+
+  const body = overlay.querySelector('.ghostty-body');
+  const onKey = (event) => { if (event.key === 'Escape') { event.stopPropagation(); close(); } };
+  const close = () => {
+    ghosttyOpen = false;
+    document.removeEventListener('keydown', onKey);
+    overlay.remove();
+  };
+  document.addEventListener('keydown', onKey);
+  overlay.querySelector('.ghostty-close').addEventListener('click', close);
+  overlay.addEventListener('click', (event) => { if (event.target === overlay) close(); });
+
+  // The iframe is created only here, so nothing downloads until the console command runs.
+  const frame = document.createElement('iframe');
+  frame.className = 'ghostty-frame';
+  frame.title = 'uutils WASM playground';
+  frame.src = 'https://uutils.org/playground/';
+  frame.referrerPolicy = 'no-referrer';
+  frame.addEventListener('load', () => { body.querySelector('.ghostty-loading')?.remove(); });
+  body.append(frame);
+}
+
+Object.defineProperty(window, 'ghostty', {
+  configurable: true,
+  get() { openGhostty(); return () => openGhostty(); }
+});
+
 const BAD_CODE = ['b', 'a', 'd', 'a', 'p', 'p', 'l', 'e'];
 let badCodeIndex = 0;
 window.addEventListener('keydown', (event) => {
+  if (event.target instanceof Element && event.target.matches('input, textarea, select')) return;
   const key = event.key.toLowerCase();
   if (key === BAD_CODE[badCodeIndex]) {
     badCodeIndex += 1;
