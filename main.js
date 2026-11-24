@@ -578,17 +578,30 @@ let pacOldTouchAction = '';
 let pacEaten = [];
 let pacTotal = 1;
 let pacLastEat = 0;
+let pacStartTime = 0;
+let pacWon = false;
+let pacTriggerWin = null;
 
-const PAC_SKIP_TAGS = new Set(['HTML', 'BODY', 'HEAD', 'SCRIPT', 'STYLE', 'NOSCRIPT']);
+function formatPacTime(ms) {
+  const totalSeconds = Math.max(1, Math.round(ms / 1000));
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+  if (minutes === 0) {
+    return `${seconds}s`;
+  }
+  return `${minutes}m ${seconds}s`;
+}
 
-const PAC_SKIP_LAYOUT = 'main, section, header, footer, nav, .wrap, .hero, .hero-copy, .hero-art, .about-grid, .controls, .badges, .btn-row, .top-actions, .repo-grid, .stats, .section-head, .center, .footer-links';
+const PAC_SKIP_TAGS = new Set(['HTML', 'BODY', 'HEAD', 'SCRIPT', 'STYLE', 'NOSCRIPT', 'OPTION']);
+
+const PAC_SKIP_LAYOUT = 'main, section, header, footer, nav, #smoothContent, .wrap, .hero, .hero-copy, .hero-art, .about-grid, .controls, .badges, .btn-row, .top-actions, .repo-grid, .stats, .section-head, .center, .footer-links, .skip-link';
 
 function isEdible(el) {
   if (!el || el === document.body || el === document.documentElement) return false;
   if (PAC_SKIP_TAGS.has(el.tagName)) return false;
   if (el.matches(PAC_SKIP_LAYOUT)) return false;
-  if (el.closest('.pacman, .pac-hud, #avatarZone, .eat-fx, #toast')) return false;
-  if (el.classList.contains('eaten') || el.classList.contains('restoring')) return false;
+  if (el.closest('.pacman, .pac-hud, #avatarZone, .eat-fx, #toast, .pac-win-overlay, .ghostty-overlay, .tiles-overlay, .bad-apple-overlay, .skip-link')) return false;
+  if (el.classList.contains('eaten') || el.classList.contains('restoring') || el.closest('.eaten')) return false;
   const r = el.getBoundingClientRect();
   if (!r.width || !r.height) return false;
   if (r.width * r.height > 500000) return false;
@@ -609,14 +622,16 @@ onAvatarPoof = () => schedulePacman();
 onAvatarRestore = () => { clearTimeout(pacAutoTimer); pacAutoTimer = null; };
 
 function stopPacman() {
-  if (!pacActive) return;
+  if (!pacActive && !pacWon) return;
   pacActive = false;
+  pacWon = false;
   pacLoopToken += 1;
   clearInterval(pacFrame);
   clearTimeout(pacAutoTimer);
   pacAutoTimer = null;
   $('.pacman')?.remove();
   $('.pac-hud')?.remove();
+  $('.pac-win-overlay')?.remove();
 
   const restored = pacEaten.slice();
   restored.forEach((el) => {
@@ -679,19 +694,104 @@ function spawnPacman() {
   pacBody.style.transform = `rotate(${pacAngle}deg)`;
 
   pacTotal = Math.max(1, Array.from(document.body.querySelectorAll('*')).filter(isEdible).length);
+  pacStartTime = performance.now();
+  pacWon = false;
   let score = 0;
   const scoreEl = hud.querySelector('.pac-score');
   const progressFill = hud.querySelector('.pac-progress-fill');
   const updateHud = () => {
     scoreEl.textContent = score;
-    progressFill.style.width = `${Math.min(100, (score / pacTotal) * 100)}%`;
+    const remaining = Array.from(document.body.querySelectorAll('*')).filter(isEdible).length;
+    const pct = Math.min(100, Math.max((score / pacTotal) * 100, remaining === 0 ? 100 : ((pacTotal - remaining) / pacTotal) * 100));
+    progressFill.style.width = `${pct}%`;
   };
   updateHud();
+
+  const triggerPacWin = () => {
+    if (pacWon) return;
+    pacWon = true;
+    pacActive = false;
+    clearInterval(pacFrame);
+    document.body.style.touchAction = pacOldTouchAction;
+
+    const elapsedMs = performance.now() - pacStartTime;
+    const timeStr = formatPacTime(elapsedMs);
+
+    showToast(`Congratulations! You ate the website in ${timeStr}.`);
+
+    const overlay = document.createElement('div');
+    overlay.className = 'pac-win-overlay';
+    overlay.setAttribute('role', 'dialog');
+    overlay.setAttribute('aria-modal', 'true');
+    overlay.innerHTML =
+      '<div class="pac-win-modal">' +
+        '<div class="pac-win-badge">★ PAC-MAN VICTORY ★</div>' +
+        `<p class="pac-win-msg">Congratulations! You ate the website in <strong>${timeStr}</strong>.</p>` +
+        '<p class="pac-win-question">Do you want it again?</p>' +
+        '<div class="pac-win-actions">' +
+          '<button type="button" class="pac-win-btn pac-win-btn-yes" id="pacWinYes">Yes, Eat Again</button>' +
+          '<button type="button" class="pac-win-btn pac-win-btn-no" id="pacWinNo">No, Restore</button>' +
+        '</div>' +
+      '</div>';
+    document.body.append(overlay);
+
+    const cleanup = () => {
+      window.removeEventListener('keydown', onWinKey);
+      overlay.remove();
+    };
+
+    const handleYes = () => {
+      cleanup();
+      pacWon = false;
+      const restored = pacEaten.slice();
+      restored.forEach((el) => {
+        el.classList.remove('eaten');
+        el.classList.add('restoring');
+      });
+      setTimeout(() => restored.forEach((el) => el.classList.remove('restoring')), 520);
+      pacEaten = [];
+      showToast('Round 2! Go Pac-Man!');
+      setTimeout(() => spawnPacman(), 550);
+    };
+
+    const handleNo = () => {
+      cleanup();
+      pacWon = false;
+      stopPacman();
+    };
+
+    const onWinKey = (e) => {
+      const k = e.key.toLowerCase();
+      if (k === 'escape' || k === 'n') {
+        e.preventDefault();
+        e.stopPropagation();
+        handleNo();
+      } else if (k === 'enter' || k === 'y') {
+        e.preventDefault();
+        e.stopPropagation();
+        handleYes();
+      }
+    };
+    window.addEventListener('keydown', onWinKey);
+
+    overlay.querySelector('#pacWinYes').addEventListener('click', handleYes);
+    overlay.querySelector('#pacWinNo').addEventListener('click', handleNo);
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) handleNo();
+    });
+  };
+  pacTriggerWin = triggerPacWin;
 
   const eat = (el) => {
     const r = el.getBoundingClientRect();
     el.classList.add('eaten');
     pacEaten.push(el);
+    el.querySelectorAll('*').forEach((child) => {
+      if (!child.classList.contains('eaten')) {
+        child.classList.add('eaten');
+        pacEaten.push(child);
+      }
+    });
     score += 1;
     updateHud();
     const fx = document.createElement('span');
@@ -701,6 +801,11 @@ function spawnPacman() {
     fx.style.top = `${r.top + r.height / 2}px`;
     document.body.append(fx);
     setTimeout(() => fx.remove(), 620);
+
+    const remaining = Array.from(document.body.querySelectorAll('*')).filter(isEdible).length;
+    if (remaining === 0 || score >= pacTotal) {
+      triggerPacWin();
+    }
   };
 
   const step = () => {
@@ -965,5 +1070,15 @@ window.addEventListener('keydown', (event) => {
 });
 
 if (new URLSearchParams(location.search).has('pacman')) setTimeout(spawnPacman, 300);
+
+window.pacEatAll = () => {
+  if (!pacActive) spawnPacman();
+  const edible = Array.from(document.body.querySelectorAll('*')).filter(isEdible);
+  edible.forEach((el) => {
+    el.classList.add('eaten');
+    pacEaten.push(el);
+  });
+  if (pacTriggerWin) pacTriggerWin();
+};
 
 icons();
