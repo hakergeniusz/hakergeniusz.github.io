@@ -1066,7 +1066,7 @@ function openSnake() {
   overlay.className = 'snake-overlay';
   overlay.innerHTML = '<div class="snake-window">' +
     '<div class="snake-bar"><span>SNAKE // WASM-FREE</span><button class="snake-close" type="button" aria-label="Close snake">x</button></div>' +
-    '<iframe class="snake-frame" src="assets/snake/index.html?v=32" title="Snake game"></iframe></div>';
+    '<iframe class="snake-frame" src="assets/snake/index.html?v=33" title="Snake game"></iframe></div>';
   document.body.append(overlay);
 
   const close = () => {
