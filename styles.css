@@ -75,6 +75,7 @@ button { cursor: pointer; }
 ::-webkit-scrollbar-corner { background: var(--card); }
 [dir='rtl'] ::-webkit-scrollbar-track { border-left: 0; border-right: 5px solid var(--border); }
 
+#smoothContent { position: relative; }
 html.smooth-active #smoothContent {
   position: fixed; left: 0; top: 76px; width: 100%;
   will-change: transform;
@@ -332,7 +333,7 @@ html.tiles-open, html.tiles-open body { overflow: hidden; }
 
 /* ---------- pac-man easter egg ---------- */
 .pacman {
-  position: fixed; left: 0; top: 0; width: 64px; height: 64px; z-index: 250;
+  position: absolute; left: 0; top: 0; width: 64px; height: 64px; z-index: 250;
   pointer-events: none; will-change: transform;
 }
 .pacman-body {

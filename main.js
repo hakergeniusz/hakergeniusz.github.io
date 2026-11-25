@@ -707,7 +707,11 @@ function spawnPacman() {
   hud.className = 'pac-hud';
   hud.innerHTML = '<div class="pac-hud-line">PAC-MAN - <span class="pac-score">0</span> EATEN - <button type="button" class="pac-restore-btn" aria-label="Restore site">ESC RESTORE</button></div><div class="pac-progress"><div class="pac-progress-fill"></div></div>' +
     '<div class="pac-dpad" aria-label="Pac-Man controls"><button type="button" data-dir="up" aria-label="Up">▲</button><button type="button" data-dir="left" aria-label="Left">◀</button><button type="button" data-dir="down" aria-label="Down">▼</button><button type="button" data-dir="right" aria-label="Right">▶</button></div>';
-  document.body.append(pacman, hud);
+  // Anchor Pac-Man to the page content, not the viewport, so scrolling moves
+  // it with the site (prevents scrolling to dodge or deliver pellets).
+  const content = $('#smoothContent') || document.body;
+  content.append(pacman);
+  document.body.append(hud);
   pacOldTouchAction = document.body.style.touchAction;
   document.body.style.touchAction = isMobileDevice() ? 'pan-y' : 'none';
 
@@ -732,9 +736,12 @@ function spawnPacman() {
 
   const zone = $('#avatarZone');
   const rect = zone?.getBoundingClientRect() || { left: 60, top: 120, width: 210, height: 210 };
+  const contentRect = content.getBoundingClientRect();
+  const maxX = Math.max(0, content.scrollWidth - PAC_SIZE);
+  const maxY = Math.max(0, content.scrollHeight - PAC_SIZE);
   pacPosition = {
-    x: Math.max(8, Math.min(window.innerWidth - PAC_SIZE - 8, rect.left + rect.width / 2 - PAC_SIZE / 2)),
-    y: Math.max(8, Math.min(window.innerHeight - PAC_SIZE - 8, rect.top + rect.height / 2 - PAC_SIZE / 2))
+    x: Math.max(8, Math.min(maxX - 8, rect.left - contentRect.left + rect.width / 2 - PAC_SIZE / 2)),
+    y: Math.max(8, Math.min(maxY - 8, rect.top - contentRect.top + rect.height / 2 - PAC_SIZE / 2))
   };
   pacman.style.transform = `translate(${pacPosition.x}px, ${pacPosition.y}px)`;
   pacBody.style.transform = `rotate(${pacAngle}deg)`;
@@ -860,22 +867,27 @@ function spawnPacman() {
     let dx = pacDir.x * PAC_SPEED;
     let dy = pacDir.y * PAC_SPEED;
 
+    const maxX = Math.max(0, content.scrollWidth - PAC_SIZE);
+    const maxY = Math.max(0, content.scrollHeight - PAC_SIZE);
     const nextX = pacPosition.x + dx;
     const nextY = pacPosition.y + dy;
-    if (nextX < 0 || nextX > window.innerWidth - PAC_SIZE) { dx = 0; pacDir.x = 0; }
-    if (nextY < 0 || nextY > window.innerHeight - PAC_SIZE) { dy = 0; pacDir.y = 0; }
+    if (nextX < 0 || nextX > maxX) { dx = 0; pacDir.x = 0; }
+    if (nextY < 0 || nextY > maxY) { dy = 0; pacDir.y = 0; }
 
     if (dx || dy) {
       pacAngle = (Math.atan2(dy, dx) * 180) / Math.PI;
       pacBody.style.transform = `rotate(${pacAngle}deg)`;
     }
 
-    pacPosition.x = Math.max(0, Math.min(window.innerWidth - PAC_SIZE, pacPosition.x + dx));
-    pacPosition.y = Math.max(0, Math.min(window.innerHeight - PAC_SIZE, pacPosition.y + dy));
+    pacPosition.x = Math.max(0, Math.min(maxX, pacPosition.x + dx));
+    pacPosition.y = Math.max(0, Math.min(maxY, pacPosition.y + dy));
     pacman.style.transform = `translate(${pacPosition.x}px, ${pacPosition.y}px)`;
 
-    const cx = pacPosition.x + PAC_SIZE / 2;
-    const cy = pacPosition.y + PAC_SIZE / 2;
+    // elementFromPoint needs viewport coords; Pac-Man now lives inside the
+    // scrolling content, so derive its on-screen centre from its own rect.
+    const pacRect = pacman.getBoundingClientRect();
+    const cx = pacRect.left + PAC_SIZE / 2;
+    const cy = pacRect.top + PAC_SIZE / 2;
     const under = document.elementFromPoint(cx, cy);
     let onYellow = false;
     let node = under;
