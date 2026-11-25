@@ -1080,7 +1080,13 @@ function openSnake() {
   overlay.querySelector('.snake-close').addEventListener('click', close);
   overlay.addEventListener('click', (event) => { if (event.target === overlay) close(); });
   const frame = overlay.querySelector('.snake-frame');
-  frame.addEventListener('load', () => frame.focus());
+  frame.addEventListener('load', () => {
+    frame.focus();
+    try {
+      frame.contentWindow?.focus();
+      frame.contentDocument?.getElementById('game')?.focus();
+    } catch (_) { /* cross-origin guard */ }
+  });
 }
 
 /* ---------------- tiles / 2048 wasm easter egg ---------------- */
