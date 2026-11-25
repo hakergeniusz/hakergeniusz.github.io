@@ -1052,18 +1052,28 @@ Object.defineProperty(window, 'ghostty', {
   get() { openGhostty(); return () => openGhostty(); }
 });
 
-/* ---------------- mobile easter-egg dock ---------------- */
-const eggToggle = $('#eggToggle');
-const eggMenu = $('#eggMenu');
-eggToggle?.addEventListener('click', () => {
-  const open = eggMenu.hidden;
-  eggMenu.hidden = !open;
-  eggToggle.setAttribute('aria-expanded', String(open));
+/* ---------------- mobile easter-egg dock (hidden behind a footer long-press) ---------------- */
+const mobileEggs = $('#mobileEggs');
+const footerBrand = $('#footerBrand');
+let eggHoldTimer = null;
+let eggsVisible = false;
+const showEggs = () => {
+  eggsVisible = !eggsVisible;
+  mobileEggs.hidden = !eggsVisible;
+  if (eggsVisible) showToast('???');
+};
+const cancelEggHold = () => { clearTimeout(eggHoldTimer); eggHoldTimer = null; };
+footerBrand?.addEventListener('pointerdown', (event) => {
+  if (event.pointerType !== 'touch') return;
+  eggHoldTimer = setTimeout(showEggs, 1500);
 });
+['pointerup', 'pointerleave', 'pointercancel'].forEach((evt) =>
+  footerBrand?.addEventListener(evt, cancelEggHold));
+footerBrand?.addEventListener('contextmenu', (event) => event.preventDefault());
 $$('[data-egg]').forEach((btn) => {
   btn.addEventListener('click', () => {
-    eggMenu.hidden = true;
-    eggToggle?.setAttribute('aria-expanded', 'false');
+    mobileEggs.hidden = true;
+    eggsVisible = false;
     const eggs = { ghostty: openGhostty, tiles: openTiles, snake: openSnake };
     eggs[btn.dataset.egg]?.();
   });

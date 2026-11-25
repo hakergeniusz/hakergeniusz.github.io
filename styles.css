@@ -259,16 +259,8 @@ html.ghostty-open, html.ghostty-open body { overflow: hidden; }
 /* ---------- mobile easter-egg dock (touch devices only) ---------- */
 .mobile-eggs { display: none; }
 @media (hover: none) and (pointer: coarse) {
-  .mobile-eggs { display: block; position: fixed; left: 14px; bottom: 14px; z-index: 430; }
-  .egg-toggle {
-    background: #181616; color: #ffd400; border: 3px solid #ffd400;
-    box-shadow: 4px 4px 0 #000; padding: 9px 12px;
-    font: 700 11px/1 var(--font-mono); letter-spacing: .1em; cursor: pointer;
-  }
-  .egg-menu {
-    display: flex; flex-direction: column; gap: 6px; margin-bottom: 8px;
-  }
-  .egg-menu[hidden] { display: none; }
+  .mobile-eggs:not([hidden]) { display: block; position: fixed; left: 14px; bottom: 14px; z-index: 430; }
+  .egg-menu { display: flex; flex-direction: column; gap: 6px; }
   .egg-menu button {
     background: #181616; color: #ffd400; border: 2px solid #ffd400;
     box-shadow: 3px 3px 0 #000; padding: 8px 12px;
