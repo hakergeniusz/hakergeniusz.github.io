@@ -1052,8 +1052,41 @@ Object.defineProperty(window, 'ghostty', {
   get() { openGhostty(); return () => openGhostty(); }
 });
 
+/* ---------------- snake easter egg ---------------- */
+const SNAKE_SEQ = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'];
+let snakeSeqIdx = 0;
+let snakeOpen = false;
+
+function openSnake() {
+  if (snakeOpen) return;
+  snakeOpen = true;
+  root.classList.add('snake-open');
+
+  const overlay = document.createElement('div');
+  overlay.className = 'snake-overlay';
+  overlay.innerHTML = '<div class="snake-window">' +
+    '<div class="snake-bar"><span>SNAKE // WASM-FREE</span><button class="snake-close" type="button" aria-label="Close snake">x</button></div>' +
+    '<iframe class="snake-frame" src="assets/snake/index.html" title="Snake game"></iframe></div>';
+  document.body.append(overlay);
+
+  const close = () => {
+    snakeOpen = false;
+    root.classList.remove('snake-open');
+    document.removeEventListener('keydown', onKey);
+    overlay.remove();
+  };
+  const onKey = (event) => { if (event.key === 'Escape') { event.stopPropagation(); close(); } };
+  document.addEventListener('keydown', onKey);
+  overlay.querySelector('.snake-close').addEventListener('click', close);
+  overlay.addEventListener('click', (event) => { if (event.target === overlay) close(); });
+  const frame = overlay.querySelector('.snake-frame');
+  frame.addEventListener('load', () => frame.focus());
+}
+
 /* ---------------- tiles / 2048 wasm easter egg ---------------- */
-const TILES_SEQ = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'];
+// Full Konami code: Up Up Down Down Left Right Left Right.
+const TILES_SEQ = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown',
+  'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight'];
 let tilesSeqIdx = 0;
 let tilesOpen = false;
 
@@ -1083,14 +1116,25 @@ function openTiles() {
   frame.addEventListener('load', () => frame.focus());
 }
 
+// Snake uses the short code; 2048 uses the full Konami code. Both share a
+// single listener so overlapping prefixes never fire both games.
+const arrowCodes = [
+  { seq: SNAKE_SEQ, idx: 0, run: openSnake },
+  { seq: TILES_SEQ, idx: 0, run: openTiles }
+];
 window.addEventListener('keydown', (event) => {
   if (event.target instanceof Element && event.target.matches('input, textarea, select')) return;
-  if (event.key !== TILES_SEQ[tilesSeqIdx]) {
-    tilesSeqIdx = event.key === TILES_SEQ[0] ? 1 : 0;
-    return;
-  }
-  tilesSeqIdx += 1;
-  if (tilesSeqIdx === TILES_SEQ.length) { tilesSeqIdx = 0; openTiles(); }
+  arrowCodes.forEach((code) => {
+    if (event.key !== code.seq[code.idx]) {
+      code.idx = event.key === code.seq[0] ? 1 : 0;
+      return;
+    }
+    code.idx += 1;
+    if (code.idx === code.seq.length) {
+      code.idx = 0;
+      code.run();
+    }
+  });
 });
 
 const BAD_CODE = ['b', 'a', 'd', 'a', 'p', 'p', 'l', 'e'];
