@@ -11,7 +11,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
   <script src="https://unpkg.com/lucide@latest" defer></script>
-  <link rel="stylesheet" href="styles.css?v=33" />
+  <link rel="stylesheet" href="styles.css?v=34" />
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
@@ -138,6 +138,14 @@
 
   <div id="trueDarkOverlay" aria-hidden="true"></div>
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
-  <script src="main.js?v=33" defer></script>
+  <div class="mobile-eggs" id="mobileEggs">
+    <button class="egg-toggle" id="eggToggle" type="button" aria-label="Open easter eggs" aria-expanded="false">EGGS</button>
+    <div class="egg-menu" id="eggMenu" hidden>
+      <button type="button" data-egg="ghostty">GHOSTTY</button>
+      <button type="button" data-egg="tiles">2048</button>
+      <button type="button" data-egg="snake">SNAKE</button>
+    </div>
+  </div>
+  <script src="main.js?v=34" defer></script>
 </body>
 </html>

@@ -110,7 +110,7 @@
   let snake, dir, nextDir, turnQueue, food, score, state, tickMs, last, acc, raf;
   let autoplay = false, lazyIdx = 0;
   const LAZY_CODE = 'iamlazy';
-  const BASE_TICK = 85;
+  const BASE_TICK = 113; // 25% slower than the original 85ms tick
   const DIRS = [[1, 0], [-1, 0], [0, 1], [0, -1]];
   const badge = document.getElementById('auto-badge');
   const cellKey = (x, y) => x + ',' + y;

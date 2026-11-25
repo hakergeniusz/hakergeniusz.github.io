@@ -1052,6 +1052,23 @@ Object.defineProperty(window, 'ghostty', {
   get() { openGhostty(); return () => openGhostty(); }
 });
 
+/* ---------------- mobile easter-egg dock ---------------- */
+const eggToggle = $('#eggToggle');
+const eggMenu = $('#eggMenu');
+eggToggle?.addEventListener('click', () => {
+  const open = eggMenu.hidden;
+  eggMenu.hidden = !open;
+  eggToggle.setAttribute('aria-expanded', String(open));
+});
+$$('[data-egg]').forEach((btn) => {
+  btn.addEventListener('click', () => {
+    eggMenu.hidden = true;
+    eggToggle?.setAttribute('aria-expanded', 'false');
+    const eggs = { ghostty: openGhostty, tiles: openTiles, snake: openSnake };
+    eggs[btn.dataset.egg]?.();
+  });
+});
+
 /* ---------------- snake easter egg ---------------- */
 const SNAKE_SEQ = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'];
 let snakeSeqIdx = 0;
@@ -1066,7 +1083,7 @@ function openSnake() {
   overlay.className = 'snake-overlay';
   overlay.innerHTML = '<div class="snake-window">' +
     '<div class="snake-bar"><span>SNAKE // WASM-FREE</span><button class="snake-close" type="button" aria-label="Close snake">x</button></div>' +
-    '<iframe class="snake-frame" src="assets/snake/index.html?v=33" title="Snake game"></iframe></div>';
+    '<iframe class="snake-frame" src="assets/snake/index.html?v=34" title="Snake game"></iframe></div>';
   document.body.append(overlay);
 
   const close = () => {
