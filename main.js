@@ -1065,6 +1065,7 @@ const showEggs = () => {
 const cancelEggHold = () => { clearTimeout(eggHoldTimer); eggHoldTimer = null; };
 footerBrand?.addEventListener('pointerdown', (event) => {
   if (event.pointerType !== 'touch') return;
+  event.preventDefault(); // stop the native text-selection/callout gesture
   eggHoldTimer = setTimeout(showEggs, 1500);
 });
 ['pointerup', 'pointerleave', 'pointercancel'].forEach((evt) =>
