@@ -17,6 +17,24 @@ A single-page, brutalist portfolio for [hakergeniusz](https://github.com/hakerge
 - Links to GitHub, Discord (`@hakergeniusz`) and X/Twitter (`@hakergeniusz`)
 - Click-to-copy handles, MIT license
 
+## One-line installers
+
+The site hosts thin forwarders to the canonical installers:
+
+```sh
+curl -fsSL https://hakergeniusz.github.io/pico/install.sh | sh
+curl -fsSL https://hakergeniusz.github.io/rustfetch/install.sh | sh
+curl -fsSL https://hakergeniusz.github.io/pi-rs/install.sh | sh
+```
+
+PowerShell equivalents:
+
+```powershell
+irm https://hakergeniusz.github.io/pico/install.ps1 | iex
+irm https://hakergeniusz.github.io/rustfetch/install.ps1 | iex
+irm https://hakergeniusz.github.io/pi-rs/install.ps1 | iex
+```
+
 ## Run locally
 
 ```sh

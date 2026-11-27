@@ -312,6 +312,7 @@ $$('[data-copy]').forEach((btn) => btn.addEventListener('click', async (event) =
 
 /* ---------------- repos: snapshot + live GitHub API ---------------- */
 const FEATURED_REPOS = [
+  { name: 'pico', description: 'Minimal Micro-inspired terminal text editor in Rust - line numbers, mouse selection, scrollbar and MIT license', language: 'Rust', stars: 0, forks: 0, flag: 'Pinned' },
   { name: 'rustfetch', description: 'Fastfetch- and hyfetch-inspired Rust system info tool', language: 'Rust', stars: 0, forks: 0, flag: 'Pinned' },
   { name: 'discord-bot', description: 'Yet Another Shitty Made Discord Bot', language: 'Python', stars: 2, forks: 2, flag: 'Pinned' },
   { name: 'griffel', description: 'A distraction-free Markdown editor for Linux, written in Rust', language: 'Rust', stars: 1, forks: 0, flag: 'Pinned' },
