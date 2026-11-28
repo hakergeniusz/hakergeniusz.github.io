@@ -35,6 +35,14 @@ irm https://hakergeniusz.github.io/rustfetch/install.ps1 | iex
 irm https://hakergeniusz.github.io/pi-rs/install.ps1 | iex
 ```
 
+Distro packages for pico (verify checksums, then install via the native package manager):
+
+```sh
+curl -fsSL https://hakergeniusz.github.io/pico/install-deb.sh | sh  # Debian/Ubuntu
+curl -fsSL https://hakergeniusz.github.io/pico/install-rpm.sh | sh  # Fedora/RHEL
+curl -fsSL https://hakergeniusz.github.io/pico/install-arch.sh | sh # Arch
+```
+
 ## Run locally
 
 ```sh
